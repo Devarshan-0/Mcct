@@ -1,8 +1,6 @@
 # --- MCCT Model Function ---
 def run_mcct_model(plants, features, contexts, num_days, learning_rate, external_df=None):
-    import numpy as np
-    import streamlit as st
-    import pandas as pd
+    
 
     # --- 1) Prepare Plant Data ---
     np.random.seed(42)
@@ -114,6 +112,7 @@ def run_mcct_model(plants, features, contexts, num_days, learning_rate, external
 
 # --- Streamlit App Starts Here ---
 import streamlit as st
+import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
