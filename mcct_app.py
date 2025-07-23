@@ -127,7 +127,7 @@ st.markdown("Simulate plant-to-plant signaling under environmental contexts usin
 
 # --- Sidebar Inputs ---
 uploaded_file = st.sidebar.file_uploader("📂 Upload CSV Plant Data", type=["csv"])
-external_df = pd.read_csv(uploaded_file) if uploaded_file else None
+external_df = pd.read_csv(uploaded_file) if uploaded_file is not None else None
 contexts = ['drought', 'normal','stress']
 selected_context = st.sidebar.selectbox("Select Environmental Context", contexts)
 selected_time = st.sidebar.slider("Select Time Step", 0, 6, 0)
