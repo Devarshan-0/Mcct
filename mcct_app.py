@@ -480,7 +480,7 @@ if run_sim:
     
 
 # --- Show Environmental Data ---
-    st.markdown(f"### 🌿 Environmental Data — Context: {selected_context}, Time Step: {selected_time}")
+    st.markdown(f"### 🌿 Environmental Data — Context: {selected_context}")
 
     for pi, plant in enumerate(plants):
         data = plant_data[plant][selected_time][selected_context]
