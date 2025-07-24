@@ -310,12 +310,12 @@ if run_sim:
     # --- Adjust y-axis scale to zoom into the differences ---
     min_val = total_influence.min()
     max_val = total_influence.max()
-    margin = (max_val - min_val) * 0.1 # 20% margin
+    margin = (max_val - min_val) * 0.2 # 20% margin
     ax10.set_ylim([min_val - margin, max_val + margin])
 
     # --- Annotate bars with exact values ---
     for bar, val in zip(bars, total_influence):
-        ax10.text(bar.get_x() + bar.get_width()/2, val + margin*0.05, f"{val:.2f}",
+        ax10.text(bar.get_x() + bar.get_width()/2, val + margin*0.02, f"{val:.2f}",
                   ha='center', va='bottom', fontsize=9)
 
     st.pyplot(fig10)
