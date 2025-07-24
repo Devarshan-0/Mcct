@@ -130,6 +130,7 @@ external_df = pd.read_csv(uploaded_file) if uploaded_file is not None else None
 contexts = ['drought', 'normal','stress']
 selected_context = st.sidebar.selectbox("Select Environmental Context", contexts)
 selected_time = st.sidebar.slider("Select Time Step", 0, 6, 0)
+threshold = st.sidebar.slider("Minimum Influence Threshold", 0.0, 1.0, 0.1, 0.05)
 run_sim = st.sidebar.checkbox("▶️ Run Simulation")
 
 # --- Fixed Parameters ---
@@ -161,6 +162,16 @@ if run_sim:
     sns.heatmap(matrix, annot=True, cmap="YlGnBu", xticklabels=plants, yticklabels=plants, ax=ax1)
     st.pyplot(fig1)
 
+    # Convert influence matrix to CSV for download
+    df_influence = pd.DataFrame(matrix, columns=plants, index=plants)
+    st.download_button(
+    label="📥 Download Influence Matrix as CSV",
+    data=df_influence.to_csv().encode('utf-8'),
+    file_name=f"influence_matrix_{selected_context}.csv",
+    mime='text/csv'
+    )
+
+
     # --- PCA Visualization ---
     st.subheader("PCA Projection of Influence Matrix")
     flat = matrix.reshape(num_plants, -1)
@@ -179,8 +190,9 @@ if run_sim:
         G.add_node(plants[i])
     for i in range(num_plants):
         for j in range(num_plants):
-            if i != j and matrix[i, j] > 0.1:
+            if i != j and matrix[i, j] > threshold:
                 G.add_edge(plants[i], plants[j], weight=round(matrix[i, j], 2))
+
 
     pos = nx.circular_layout(G)
     edge_labels = nx.get_edge_attributes(G, 'weight')
