@@ -294,6 +294,19 @@ if run_sim:
     sns.heatmap(matrix_feature_based, annot=True, cmap="coolwarm", xticklabels=plants, yticklabels=plants, ax=ax9)
     ax9.set_title(f"Feature-based Influence Matrix — {selected_feature_influence.capitalize()} ({selected_context})")
     st.pyplot(fig9)
+    st.subheader("🏆 Plant Influence Rankings (Total Outgoing Influence)")
+
+    context_for_ranking = st.selectbox("Select Context for Ranking", contexts, key="ranking_ctx")
+    ctx_idx_rank = contexts.index(context_for_ranking)
+
+    avg_influence_matrix = np.mean(tensor[:, :, :, ctx_idx_rank], axis=2)
+    total_influence = np.sum(avg_influence_matrix, axis=1)
+
+    fig10, ax10 = plt.subplots()
+    ax10.bar(plants, total_influence, color='teal')
+    ax10.set_ylabel("Total Outgoing Influence")
+    ax10.set_title(f"Overall Influence Rankings — Context: {context_for_ranking}")
+    st.pyplot(fig10)
 
 
     
