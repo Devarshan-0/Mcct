@@ -1,7 +1,8 @@
 # --- MCCT Model Function ---
 def run_mcct_model(plants, features, contexts, num_days, learning_rate, external_df=None):
+    import streamlit as st
+    import pandas as pd
     
-
     # --- 1) Prepare Plant Data ---
     np.random.seed(42)
     plant_data = {}
@@ -165,10 +166,10 @@ if run_sim:
     # Convert influence matrix to CSV for download
     df_influence = pd.DataFrame(matrix, columns=plants, index=plants)
     st.download_button(
-    label="📥 Download Influence Matrix as CSV",
-    data=df_influence.to_csv().encode('utf-8'),
-    file_name=f"influence_matrix_{selected_context}.csv",
-    mime='text/csv'
+        label="📥 Download Influence Matrix as CSV",
+        data=df_influence.to_csv().encode('utf-8'),
+        file_name=f"influence_matrix_{selected_context}.csv",
+        mime='text/csv'
     )
 
 
