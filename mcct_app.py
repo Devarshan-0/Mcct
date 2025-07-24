@@ -223,12 +223,12 @@ if run_sim:
         target_idx = plants.index(selected_target)
         values_over_time = [tensor[source_idx, target_idx, t, ctx_idx] for t in range(num_time_steps)]
         st.subheader(f"📊 Influence of {selected_source} → {selected_target} over Time ({selected_context})")
-        fig4, ax4 = plt.subplots()
+        fig5, ax5 = plt.subplots()
         ax4.plot(range(num_time_steps), values_over_time, marker='o')
         ax4.set_xlabel("Time Step")
         ax4.set_ylabel("Influence Score")
         ax4.set_title("Time-wise Influence Trend")
-        st.pyplot(fig4)
+        st.pyplot(fig5)
 
 
     
