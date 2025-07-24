@@ -214,13 +214,13 @@ def plot_influence_network(matrix, plant_labels=None, threshold=0.1):
     plt.tight_layout()
     st.pyplot(plt)
 
+def get_top_influencers(matrix, plant_labels):
+    totals = {}
+    for i in range(matrix.shape[0]):
+        totals[plant_labels[i]] = np.sum(matrix[i, :])
+    sorted_totals = sorted(totals.items(), key=lambda x: x[1], reverse=True)
+    return sorted_totals
    
-
-
-   
-
-
-
 
 # --- Page Setup ---
 st.set_page_config(page_title="MCCT Plant Communication", layout="centered")
@@ -326,6 +326,16 @@ if run_sim:
         selected_network_day = st.slider("Select Day for Network", 0, num_time_steps - 1, 0)
         plot_influence_network(daily_influence_matrices[selected_network_day],
                                plant_labels=plants, threshold=network_threshold)
+        st.subheader("Top Influential Plants")
+
+
+    if network_mode == "Average Influence":
+        ranked = get_top_influencers(avg_influence_matrix, plants)
+    else:
+        ranked = get_top_influencers(daily_influence_matrices[selected_network_day], plants)
+
+    for rank, (plant, total) in enumerate(ranked, start=1):
+        st.write(f"{rank}. {plant} — Total Influence Given: {total:.3f}")
 
 
 
