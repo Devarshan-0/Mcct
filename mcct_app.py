@@ -182,6 +182,38 @@ def detect_influence_shifts(threshold=0.2):
 
     return anomaly_days, anomaly_types
 
+def plot_influence_network(matrix, plant_labels=None, threshold=0.1):
+    G = nx.DiGraph()
+
+    num_nodes = matrix.shape[0]
+    labels = plant_labels if plant_labels else list(range(num_nodes))
+
+    # Add nodes
+    for i in range(num_nodes):
+        G.add_node(labels[i])
+
+    # Add edges above threshold
+    for i in range(num_nodes):
+        for j in range(num_nodes):
+            if i != j and matrix[i, j] > threshold:
+                G.add_edge(labels[i], labels[j], weight=matrix[i, j])
+
+    # Draw layout
+    pos = nx.spring_layout(G, seed=42)
+    weights = [G[u][v]['weight'] for u, v in G.edges()]
+    norm_weights = [w * 5 for w in weights]  # Scale up for visibility
+
+    plt.figure(figsize=(7, 6))
+    nx.draw(G, pos, with_labels=True, node_color='lightgreen',
+            node_size=800, arrows=True, edge_color='gray',
+            width=norm_weights)
+    nx.draw_networkx_edge_labels(G, pos,
+            edge_labels={(u, v): f"{G[u][v]['weight']:.2f}" for u, v in G.edges()},
+            font_color='red')
+    plt.title("Causal Influence Network")
+    plt.tight_layout()
+    st.pyplot(plt)
+
    
 
 
@@ -282,6 +314,17 @@ if run_sim:
     else:
         st.info("No sudden influence shifts detected for this plant.")
 
+    st.subheader("Causal Influence Network")
+
+    network_mode = st.radio("View network for:", ["Average Influence", "Specific Day"])
+    network_threshold = st.slider("Edge Threshold", 0.0, 1.0, 0.1, step=0.01)
+
+    if network_mode == "Average Influence":
+        plot_influence_network(avg_influence_matrix, plant_labels=plants, threshold=network_threshold)
+    else:
+        selected_network_day = st.slider("Select Day for Network", 0, num_time_steps - 1, 0)
+        plot_influence_network(daily_influence_matrices[selected_network_day],
+                               plant_labels=plants, threshold=network_threshold)
 
 
 
