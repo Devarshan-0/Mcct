@@ -264,8 +264,14 @@ if run_sim:
 
     # Run shift detection and pass anomaly days
     st.write("Detecting sudden influence shifts...")
-    anomaly_days = detect_influence_shifts(threshold=0.03)
+    threshold = st.slider("Select Anomaly Threshold", 0.0, 1.0, 0.05, step=0.01)
+    anomaly_days = detect_influence_shifts(threshold=threshold)
     plot_plant_influence_timeseries(plant_index, anomaly_days)
+    if anomaly_days[plant_index]:
+        st.warning(f"⚠️ Sudden shift detected on day(s): {anomaly_days[plant_index]}")
+    else:
+        st.info("No sudden influence shifts detected for this plant.")
+
 
 
 
