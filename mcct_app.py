@@ -133,7 +133,7 @@ def plot_temporal_influence_matrix(day_index):
     plt.ylabel("Source Plant")
     plt.show()
 
- def plot_plant_influence_timeseries(plant_index):
+def plot_plant_influence_timeseries(plant_index):
     influence_given = []
     influence_received = []
 
