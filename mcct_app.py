@@ -263,7 +263,8 @@ if run_sim:
         st.warning("Please choose two different plants to compare influence.")
     st.subheader("📊 Average Influence Matrix Over Time")
 
-    avg_ctx = st.sidebar.selectbox("Select Context for Average Influence", contexts, key="avg_ctx")
+    avg_ctx = st.selectbox("Select Context", contexts, key="avg_ctx_inline")
+
     ctx_idx_avg = contexts.index(avg_ctx)
 
     avg_matrix = np.mean(tensor[:, :, :, ctx_idx_avg], axis=2)
