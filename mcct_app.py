@@ -224,14 +224,16 @@ if run_sim:
         file_name=f"influence_matrix_{selected_context}.csv",
         mime='text/csv'
     )
-        # ---- Step 12 UI: Temporal Dynamics ----
+       # ---- Step 12 UI: Temporal Dynamics ----
     st.subheader("View Daily Influence Matrix")
     selected_day = st.slider("Select Day", 0, num_time_steps - 1, 0)
     plot_temporal_influence_matrix(selected_day)
 
     st.subheader("Influence Time Series per Plant")
     selected_plant = st.selectbox("Select Plant", plants, key="temporal_plant")
-    plot_plant_influence_timeseries(selected_plant)
+    plant_index = plants.index(selected_plant)
+    plot_plant_influence_timeseries(plant_index)
+
 
 
     # --- PCA Visualization ---
