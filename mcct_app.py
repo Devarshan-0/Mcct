@@ -226,7 +226,7 @@ if run_sim:
         file_name=f"influence_matrix_{selected_context}.csv",
         mime='text/csv'
     )
-       # ---- Step 12 UI: Temporal Dynamics ----
+    # ---- Step 12 UI: Temporal Dynamics ----
     st.subheader("View Daily Influence Matrix")
     selected_day = st.slider("Select Day", 0, num_time_steps - 1, 0)
     plot_temporal_influence_matrix(selected_day)
