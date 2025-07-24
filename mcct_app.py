@@ -134,24 +134,24 @@ def plot_temporal_influence_matrix(day_index):
     plt.show()
 
  def plot_plant_influence_timeseries(plant_index):
-        influence_given = []
-        influence_received = []
+    influence_given = []
+    influence_received = []
 
-        for mat in daily_influence_matrices:
-            influence_given.append(np.sum(mat[plant_index, :]))
-            influence_received.append(np.sum(mat[:, plant_index]))
+    for mat in daily_influence_matrices:
+        influence_given.append(np.sum(mat[plant_index, :]))
+        influence_received.append(np.sum(mat[:, plant_index]))
 
-        days = list(range(num_time_steps))
-        plt.figure(figsize=(8, 5))
-        plt.plot(days, influence_given, label='Influence Given', marker='o')
-        plt.plot(days, influence_received, label='Influence Received', marker='s')
-        plt.title(f"Temporal Influence for Plant {plant_index}")
-        plt.xlabel("Day")
-        plt.ylabel("Total Influence")
-        plt.legend()
-        plt.grid(True)
-        plt.tight_layout()
-        plt.show()
+    days = list(range(num_time_steps))
+    plt.figure(figsize=(8, 5))
+    plt.plot(days, influence_given, label='Influence Given', marker='o')
+    plt.plot(days, influence_received, label='Influence Received', marker='s')
+    plt.title(f"Temporal Influence for Plant {plant_index}")
+    plt.xlabel("Day")
+    plt.ylabel("Total Influence")
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
    
 
 
