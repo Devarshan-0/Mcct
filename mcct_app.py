@@ -400,67 +400,55 @@ if run_sim:
     for i in range(num_plants):
         ax2.annotate(plants[i], (coords[i, 0], coords[i, 1]))
     st.pyplot(fig2)
+    
+    with st.expander("🔍 Pairwise Influence Exploration", expanded=False):
 
+        st.subheader("Feature Trend Visualization")
+        feature_to_plot = st.selectbox("Select Feature", ["temperature", "humidity", "pH"])
+        for pid in range(num_plants):
+            feature_vals = [plant_data[pid][day][feature_to_plot] for day in range(num_time_steps)]
+            plt.plot(range(num_time_steps), feature_vals, label=f"P{pid+1}")
+        plt.xlabel("Day")
+        plt.ylabel(feature_to_plot.capitalize())
+        plt.title(f"{feature_to_plot.capitalize()} Trend Over Time")
+        plt.legend()
+        st.pyplot(plt.gcf())
+        plt.clf()
+
+        st.subheader("Influence Over Time Between Two Plants")
+        source = st.selectbox("Select Source Plant", plants, key="src_timewise")
+        target = st.selectbox("Select Target Plant", plants, key="tgt_timewise")
+        src_idx = plants.index(source)
+        tgt_idx = plants.index(target)
+
+        influence_vals = [daily_influence_matrices[d][src_idx, tgt_idx] for d in range(num_time_steps)]
+        plt.plot(range(num_time_steps), influence_vals, marker='o')
+        plt.title(f"Influence from {source} to {target} Over Time")
+        plt.xlabel("Day")
+        plt.ylabel("Influence")
+        st.pyplot(plt.gcf())
+        plt.clf()
+
+        st.subheader("Context-wise Influence Between Two Plants")
+        source_ctx = st.selectbox("Select Source Plant", plants, key="src_ctxwise")
+        target_ctx = st.selectbox("Select Target Plant", plants, key="tgt_ctxwise")
+        src_i = plants.index(source_ctx)
+        tgt_i = plants.index(target_ctx)
+
+        influence_by_context = []
+        for c in range(len(contexts)):
+            context_avg = np.mean(tensor[src_i, tgt_i, :, c])
+            influence_by_context.append(context_avg)
+
+        fig9, ax9 = plt.subplots()
+        ax9.bar(contexts, influence_by_context, color='orchid')
+        ax9.set_ylabel("Influence Value")
+        ax9.set_title(f"Influence from {source_ctx} to {target_ctx} by Context")
+        st.pyplot(fig9)
+
+    
    
-# --- Feature Trend Visualization ---
-    st.subheader("📉 Feature Trends Over Time")
-    selected_feature = st.selectbox("Select Feature to View", features)
 
-    fig4, ax4 = plt.subplots()
-    for plant in plants:
-      y = [plant_data[plant][day][selected_context][selected_feature] for day in range(num_time_steps)]
-      ax4.plot(range(num_time_steps), y, label=plant, marker='o')
-    ax4.set_xlabel("Time Step")
-    ax4.set_ylabel(selected_feature.capitalize())
-    ax4.set_title(f"{selected_feature.capitalize()} over Time — Context: {selected_context}")
-    ax4.legend()
-    st.pyplot(fig4)
-    st.subheader("🔁 Time-wise Influence Between Two Plants")
-
-    selected_source = st.sidebar.selectbox("Source Plant", plants, key="src_timewise")
-    selected_target = st.sidebar.selectbox("Target Plant", plants, key="tgt_timewise")
-
-    if selected_source != selected_target:
-        source_idx = plants.index(selected_source)
-        target_idx = plants.index(selected_target)
-
-        forward = [tensor[source_idx, target_idx, t, ctx_idx] for t in range(num_time_steps)]
-        backward = [tensor[target_idx, source_idx, t, ctx_idx] for t in range(num_time_steps)]
-
-        fig6, ax6 = plt.subplots()
-        ax6.plot(range(num_time_steps), forward, marker='o', color='crimson', linestyle='-', label=f"{selected_source} → {selected_target}")
-        ax6.plot(range(num_time_steps), backward, marker='s', color='green', linestyle='--', label=f"{selected_target} → {selected_source}")
-
-        ax6.set_xlabel("Time Step")
-        ax6.set_ylabel("Influence Score")
-        ax6.set_title(f"Influence Over Time — Context: {selected_context}")
-        ax6.legend()
-        st.pyplot(fig6)
-
-    else:
-        st.warning("Please select two different plants to compare their influence.")
-    st.subheader("🌍 Context-wise Influence for a Plant Pair")
-
-    context_time_step = st.sidebar.slider("Select Time Step for Context Comparison", 0, num_time_steps - 1, 0, key="context_time_slider")
-    context_source = st.sidebar.selectbox("Source Plant (Context-wise)", plants, key="context_source")
-    context_target = st.sidebar.selectbox("Target Plant (Context-wise)", plants, key="context_target")
-
-    if context_source != context_target:
-        source_idx = plants.index(context_source)
-        target_idx = plants.index(context_target)
-
-        influence_by_context = [
-            tensor[source_idx, target_idx, context_time_step, i] for i in range(num_contexts)
-        ]
-
-        fig7, ax7 = plt.subplots()
-        ax7.bar(contexts, influence_by_context, color=['orange', 'green', 'skyblue'])
-        ax7.set_ylim(0, 1)
-        ax7.set_ylabel("Influence Score")
-        ax7.set_title(f"Influence of {context_source} → {context_target} at Time Step {context_time_step}")
-        st.pyplot(fig7)
-    else:
-        st.warning("Please choose two different plants to compare influence.")
     
     st.subheader("🌐 Feature-wise Influence Matrix")
 
