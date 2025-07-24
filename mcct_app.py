@@ -223,20 +223,22 @@ if run_sim:
     # Prevent selecting the same plant as target
     target_options = [p for p in plants if p != selected_source]
     selected_target = st.sidebar.selectbox("Target Plant", target_options, key="target_plant_select")
-
     if selected_source != selected_target:
         source_idx = plants.index(selected_source)
         target_idx = plants.index(selected_target)
-        values_over_time = [tensor[source_idx, target_idx, t, ctx_idx] for t in range(num_time_steps)]
 
-        fig5, ax5 = plt.subplots()
-        ax5.plot(range(num_time_steps), values_over_time, marker='o', color='crimson')
-        ax5.set_xlabel("Time Step")
-        ax5.set_ylabel("Influence Score")
-        ax5.set_title(f"Influence of {selected_source} → {selected_target} Over Time — Context: {selected_context}")
-        st.pyplot(fig5)
-    else:
-        st.warning("Please choose different source and target plants.")
+        forward = [tensor[source_idx, target_idx, t, ctx_idx] for t in range(num_time_steps)]
+        backward = [tensor[target_idx, source_idx, t, ctx_idx] for t in range(num_time_steps)]
+
+        fig6, ax6 = plt.subplots()
+        ax6.plot(range(num_time_steps), forward, marker='o', color='crimson', label=f"{selected_source} → {selected_target}")
+        ax6.plot(range(num_time_steps), backward, marker='o', color='green', label=f"{selected_target} → {selected_source}")
+        ax6.set_xlabel("Time Step")
+        ax6.set_ylabel("Influence Score")
+        ax6.set_title(f"Bidirectional Influence — Context: {selected_context}")
+        ax6.legend()
+        st.pyplot(fig6)
+
     
 
 # --- Show Environmental Data ---
