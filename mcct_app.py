@@ -153,6 +153,8 @@ def plot_plant_influence_timeseries(plant_index):
     plt.grid(True)
     plt.tight_layout()
     plt.show()
+    print(f"Plant index passed: {plant_index}")
+
 
    
 
