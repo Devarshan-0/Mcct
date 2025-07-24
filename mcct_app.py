@@ -229,6 +229,17 @@ if run_sim:
         ax4.set_ylabel("Influence Score")
         ax4.set_title("Time-wise Influence Trend")
         st.pyplot(fig5)
+    st.subheader("🔁 Time-wise Influence Between Two Plants")
+    selected_target = st.sidebar.selectbox("Target Plant", plants, index=1)
+    fig6, ax6 = plt.subplots()
+    influence_values = [tensor[plants.index(selected_source), plants.index(selected_target), t, ctx_idx]
+                        for t in range(num_time_steps)]
+    ax6.plot(range(num_time_steps), influence_values, marker='o', color='crimson')
+    ax6.set_xlabel("Time Step")
+    ax6.set_ylabel("Influence Score")
+    ax6.set_title(f"Influence of {selected_source} → {selected_target} Over Time — Context: {selected_context}")
+    st.pyplot(fig6)
+
 
 
     
