@@ -132,6 +132,10 @@ contexts = ['drought', 'normal','stress']
 selected_context = st.sidebar.selectbox("Select Environmental Context", contexts)
 selected_time = st.sidebar.slider("Select Time Step", 0, 6, 0)
 threshold = st.sidebar.slider("Minimum Influence Threshold", 0.0, 1.0, 0.1, 0.05)
+st.sidebar.markdown("---")
+st.sidebar.markdown("### 📈 Time-wise Influence Tracker")
+selected_source = st.sidebar.selectbox("Source Plant", plants)
+selected_target = st.sidebar.selectbox("Target Plant", plants)
 run_sim = st.sidebar.checkbox("▶️ Run Simulation")
 
 # --- Fixed Parameters ---
@@ -214,7 +218,21 @@ if run_sim:
     ax4.set_title(f"{selected_feature.capitalize()} over Time — Context: {selected_context}")
     ax4.legend()
     st.pyplot(fig4)
+    # --- Time-wise Influence Evolution Plot ---
+    if selected_source != selected_target:
+        source_idx = plants.index(selected_source)
+        target_idx = plants.index(selected_target)
+        values_over_time = [tensor[source_idx, target_idx, t, ctx_idx] for t in range(num_time_steps)]
+        st.subheader(f"📊 Influence of {selected_source} → {selected_target} over Time ({selected_context})")
+        fig4, ax4 = plt.subplots()
+        ax4.plot(range(num_time_steps), values_over_time, marker='o')
+        ax4.set_xlabel("Time Step")
+        ax4.set_ylabel("Influence Score")
+        ax4.set_title("Time-wise Influence Trend")
+        st.pyplot(fig4)
 
+
+    
 # --- Show Environmental Data ---
     st.markdown(f"### 🌿 Environmental Data — Context: {selected_context}, Time Step: {selected_time}")
 
