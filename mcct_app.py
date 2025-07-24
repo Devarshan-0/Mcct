@@ -264,7 +264,7 @@ if run_sim:
 
     # Run shift detection and pass anomaly days
     st.write("Detecting sudden influence shifts...")
-    anomaly_days = detect_influence_shifts(threshold=0.05)
+    anomaly_days = detect_influence_shifts(threshold=0.01)
     plot_plant_influence_timeseries(plant_index, anomaly_days)
 
 
