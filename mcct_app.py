@@ -406,7 +406,13 @@ if run_sim:
         st.subheader("Feature Trend Visualization")
         feature_to_plot = st.selectbox("Select Feature", ["temperature", "humidity", "pH"])
         for pid in range(num_plants):
-            feature_vals = [plant_data[pid][day][feature_to_plot] for day in range(num_time_steps)]
+            if pid >= len(plant_data):
+                continue
+            try:
+                feature_vals = [plant_data[pid][day][feature_to_plot] for day in range(num_time_steps)]
+            except (IndexError, KeyError):
+                feature_vals = [0] * num_time_steps  # or np.nan
+
             plt.plot(range(num_time_steps), feature_vals, label=f"P{pid+1}")
         plt.xlabel("Day")
         plt.ylabel(feature_to_plot.capitalize())
