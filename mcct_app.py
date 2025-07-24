@@ -304,7 +304,7 @@ if run_sim:
 
     fig10, ax10 = plt.subplots()
     ax10.bar(plants, total_influence, color='teal')
-    ax10.set_ylim(0, 1)
+    ax10.set_ylim(0, 10)
     ax10.set_ylabel("Total Outgoing Influence")
     ax10.set_title(f"Overall Influence Rankings — Context: {context_for_ranking}")
     st.pyplot(fig10)
