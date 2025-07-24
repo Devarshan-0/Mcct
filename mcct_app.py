@@ -130,13 +130,13 @@ st.markdown("Simulate plant-to-plant signaling under environmental contexts usin
 num_plants = 5
 plants = [f"P{i+1}" for i in range(num_plants)]
 features = ['temperature', 'humidity', 'soil_pH']
+contexts = ['drought', 'normal','stress']
 num_contexts = len(contexts)
 num_time_steps = 7
 learning_rate = 0.2
 # --- Sidebar Inputs ---
 uploaded_file = st.sidebar.file_uploader("📂 Upload CSV Plant Data", type=["csv"])
 external_df = pd.read_csv(uploaded_file) if uploaded_file is not None else None
-contexts = ['drought', 'normal','stress']
 selected_context = st.sidebar.selectbox("Select Environmental Context", contexts)
 selected_time = st.sidebar.slider("Select Time Step", 0, 6, 0)
 threshold = st.sidebar.slider("Minimum Influence Threshold", 0.0, 1.0, 0.1, 0.05)
