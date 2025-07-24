@@ -125,6 +125,14 @@ st.set_page_config(page_title="MCCT Plant Communication", layout="centered")
 st.title("🌱 MCCT: Plant Communication Simulator")
 st.markdown("Simulate plant-to-plant signaling under environmental contexts using your MCCT model.")
 
+# --- Fixed Parameters ---
+# --- Define Plants and Features ---
+num_plants = 5
+plants = [f"P{i+1}" for i in range(num_plants)]
+features = ['temperature', 'humidity', 'soil_pH']
+num_contexts = len(contexts)
+num_time_steps = 7
+learning_rate = 0.2
 # --- Sidebar Inputs ---
 uploaded_file = st.sidebar.file_uploader("📂 Upload CSV Plant Data", type=["csv"])
 external_df = pd.read_csv(uploaded_file) if uploaded_file is not None else None
@@ -137,15 +145,6 @@ st.sidebar.markdown("### 📈 Time-wise Influence Tracker")
 selected_source = st.sidebar.selectbox("Source Plant", plants)
 selected_target = st.sidebar.selectbox("Target Plant", plants)
 run_sim = st.sidebar.checkbox("▶️ Run Simulation")
-
-# --- Fixed Parameters ---
-# --- Define Plants and Features ---
-num_plants = 5
-plants = [f"P{i+1}" for i in range(num_plants)]
-features = ['temperature', 'humidity', 'soil_pH']
-num_contexts = len(contexts)
-num_time_steps = 7
-learning_rate = 0.2
 
 
 if run_sim:
