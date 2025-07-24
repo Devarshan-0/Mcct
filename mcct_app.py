@@ -240,10 +240,6 @@ learning_rate = 0.2
 uploaded_file = st.sidebar.file_uploader("📂 Upload CSV Plant Data", type=["csv"])
 external_df = pd.read_csv(uploaded_file) if uploaded_file is not None else None
 selected_context = st.sidebar.selectbox("Select Environmental Context", contexts)
-selected_time = st.sidebar.slider("Select Time Step", 0, 6, 0)
-threshold = st.sidebar.slider("Minimum Influence Threshold", 0.0, 1.0, 0.1, 0.05)
-st.sidebar.markdown("---")
-st.sidebar.markdown("### 📈 Time-wise Influence Tracker")
 run_sim = st.sidebar.checkbox("▶️ Run Simulation")
 
 
