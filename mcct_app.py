@@ -255,7 +255,7 @@ if run_sim:
 
         fig7, ax7 = plt.subplots()
         ax7.bar(contexts, influence_by_context, color=['orange', 'green', 'skyblue'])
-        ax7.set_ylim(0, 1)
+        ax7.set_ylim(0, 10)
         ax7.set_ylabel("Influence Score")
         ax7.set_title(f"Influence of {context_source} → {context_target} at Time Step {context_time_step}")
         st.pyplot(fig7)
