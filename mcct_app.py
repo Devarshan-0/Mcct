@@ -229,6 +229,9 @@ if run_sim:
 
         forward = [tensor[source_idx, target_idx, t, ctx_idx] for t in range(num_time_steps)]
         backward = [tensor[target_idx, source_idx, t, ctx_idx] for t in range(num_time_steps)]
+        st.write(f"Forward influence ({selected_source} → {selected_target}):", forward)
+        st.write(f"Backward influence ({selected_target} → {selected_source}):", backward)
+
 
         fig6, ax6 = plt.subplots()
         ax6.plot(range(num_time_steps), forward, marker='o', color='crimson', label=f"{selected_source} → {selected_target}")
@@ -236,6 +239,7 @@ if run_sim:
         ax6.set_xlabel("Time Step")
         ax6.set_ylabel("Influence Score")
         ax6.set_title(f"Bidirectional Influence — Context: {selected_context}")
+        ax6.set_ylim(0, 1)  # Force Y-axis from 0 to 1 to show everything
         ax6.legend()
         st.pyplot(fig6)
 
