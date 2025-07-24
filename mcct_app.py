@@ -217,31 +217,28 @@ if run_sim:
     st.pyplot(fig4)
     st.subheader("🔁 Time-wise Influence Between Two Plants")
 
-    # Sidebar selections with unique keys to avoid duplication
-    selected_source = st.sidebar.selectbox("Source Plant", plants, key="source_plant_select")
+    selected_source = st.sidebar.selectbox("Source Plant", plants, key="src_timewise")
+    selected_target = st.sidebar.selectbox("Target Plant", plants, key="tgt_timewise")
 
-    # Prevent selecting the same plant as target
-    target_options = [p for p in plants if p != selected_source]
-    selected_target = st.sidebar.selectbox("Target Plant", target_options, key="target_plant_select")
     if selected_source != selected_target:
         source_idx = plants.index(selected_source)
         target_idx = plants.index(selected_target)
 
         forward = [tensor[source_idx, target_idx, t, ctx_idx] for t in range(num_time_steps)]
         backward = [tensor[target_idx, source_idx, t, ctx_idx] for t in range(num_time_steps)]
-        st.write(f"Forward influence ({selected_source} → {selected_target}):", forward)
-        st.write(f"Backward influence ({selected_target} → {selected_source}):", backward)
-
 
         fig6, ax6 = plt.subplots()
-        ax6.plot(range(num_time_steps), forward, marker='o', color='crimson', label=f"{selected_source} → {selected_target}")
-        ax6.plot(range(num_time_steps), backward, marker='o', color='green', label=f"{selected_target} → {selected_source}")
+        ax6.plot(range(num_time_steps), forward, marker='o', color='crimson', linestyle='-', label=f"{selected_source} → {selected_target}")
+        ax6.plot(range(num_time_steps), backward, marker='s', color='green', linestyle='--', label=f"{target_idx} → {source_idx}")
+
         ax6.set_xlabel("Time Step")
         ax6.set_ylabel("Influence Score")
-        ax6.set_title(f"Bidirectional Influence — Context: {selected_context}")
-        ax6.set_ylim(0, 1)  # Force Y-axis from 0 to 1 to show everything
+        ax6.set_title(f"Influence Over Time — Context: {selected_context}")
         ax6.legend()
         st.pyplot(fig6)
+
+    else:
+        st.warning("Please select two different plants to compare their influence.")
 
     
 
