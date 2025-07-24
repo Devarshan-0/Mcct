@@ -119,6 +119,43 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.decomposition import PCA
 import networkx as nx
+    # ---- Step 12 Plotting Helpers: Daily heatmap & plant timeseries
+    def plot_temporal_influence_matrix(day_index):
+        matrix = daily_influence_matrices[day_index]
+        plt.figure(figsize=(8, 6))
+        sns.heatmap(matrix,
+                    annot=True,
+                    fmt=".2f",
+                    cmap="YlGnBu",
+                    cbar_kws={'label': 'Influence'})
+        plt.title(f"Influence Matrix - Day {day_index}")
+        plt.xlabel("Target Plant")
+        plt.ylabel("Source Plant")
+        plt.show()
+
+    def plot_plant_influence_timeseries(plant_index):
+        influence_given = []
+        influence_received = []
+
+        for mat in daily_influence_matrices:
+            influence_given.append(np.sum(mat[plant_index, :]))
+            influence_received.append(np.sum(mat[:, plant_index]))
+
+        days = list(range(num_time_steps))
+        plt.figure(figsize=(8, 5))
+        plt.plot(days, influence_given, label='Influence Given', marker='o')
+        plt.plot(days, influence_received, label='Influence Received', marker='s')
+        plt.title(f"Temporal Influence for Plant {plant_index}")
+        plt.xlabel("Day")
+        plt.ylabel("Total Influence")
+        plt.legend()
+        plt.grid(True)
+        plt.tight_layout()
+        plt.show()
+
+
+
+
 
 # --- Page Setup ---
 st.set_page_config(page_title="MCCT Plant Communication", layout="centered")
@@ -152,6 +189,21 @@ if run_sim:
     import pandas as pd
     external_df = pd.read_csv(uploaded_file) if uploaded_file is not None else None
     tensor, influence_prob,plant_data = run_mcct_model(plants, features, contexts, num_time_steps, learning_rate, external_df)
+        # ---- Step 12: Build daily influence matrices from tensor + Bayesian update
+    daily_influence_matrices = []
+    for d in range(num_time_steps):
+        day_matrix = np.zeros((num_plants, num_plants))
+        for i in range(num_plants):
+            for j in range(num_plants):
+                if i == j:
+                    continue
+                # replicate your Bayesian update per day
+                prior = influence_prob[i, j, contexts.index(selected_context)]
+                evidence = tensor[i, j, d, contexts.index(selected_context)]
+                influence = prior + learning_rate * (evidence - prior)
+                day_matrix[i, j] = influence
+        daily_influence_matrices.append(day_matrix)
+
 
 
     # --- Get Context Index ---
@@ -172,6 +224,14 @@ if run_sim:
         file_name=f"influence_matrix_{selected_context}.csv",
         mime='text/csv'
     )
+        # ---- Step 12 UI: Temporal Dynamics ----
+    st.subheader("View Daily Influence Matrix")
+    selected_day = st.slider("Select Day", 0, num_time_steps - 1, 0)
+    plot_temporal_influence_matrix(selected_day)
+
+    st.subheader("Influence Time Series per Plant")
+    selected_plant = st.selectbox("Select Plant", plants, key="temporal_plant")
+    plot_plant_influence_timeseries(selected_plant)
 
 
     # --- PCA Visualization ---
