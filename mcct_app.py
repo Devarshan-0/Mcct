@@ -132,7 +132,7 @@ def plot_temporal_influence_matrix(day_index):
     plt.title(f"Influence Matrix - Day {day_index}")
     plt.xlabel("Target Plant")
     plt.ylabel("Source Plant")
-    plt.show()
+    st.pyplot(plt)
 
 def plot_plant_influence_timeseries(plant_index):
     influence_given = []
@@ -152,7 +152,8 @@ def plot_plant_influence_timeseries(plant_index):
     plt.legend()
     plt.grid(True)
     plt.tight_layout()
-    plt.show()
+    st.pyplot(plt)
+
     print(f"Plant index passed: {plant_index}")
 
 
@@ -207,6 +208,8 @@ if run_sim:
                 influence = prior + learning_rate * (evidence - prior)
                 day_matrix[i, j] = influence
         daily_influence_matrices.append(day_matrix)
+    st.write("Daily influence matrices generated:", len(daily_influence_matrices))
+
 
 
 
