@@ -482,11 +482,25 @@ if run_sim:
 # --- Show Environmental Data ---
     st.markdown(f"### 🌿 Environmental Data — Context: {selected_context}")
 
-    for pi, plant in enumerate(plants):
-        data = plant_data[plant]
+# --- Day selector for environmental data ---
+selected_env_day = st.selectbox("Select Day for Environmental View", list(range(num_time_steps)), key="env_day")
+
+# --- Display environmental data for all plants on selected day ---
+st.markdown(f"### 🌿 Environmental Data — Context: {selected_context}, Day: {selected_env_day}")
+
+for pi, plant in enumerate(plants):
+    try:
+        day_data = plant_data[pi][selected_env_day]
+        temp = day_data.get("temperature", "N/A")
+        hum = day_data.get("humidity", "N/A")
+        ph = day_data.get("soil_pH", "N/A")
+
         st.markdown(
-        f"**{plant}**: Temperature = {data['temperature']}°C, "
-        f"Humidity = {data['humidity']}%, Soil pH = {data['soil_pH']}"
+            f"**{plant}**: Temperature = {temp}°C, "
+            f"Humidity = {hum}%, Soil pH = {ph}"
         )
+    except IndexError:
+        st.warning(f"No data found for {plant} on Day {selected_env_day}.")
+
 else:
     st.info("Click ▶️ **Run Simulation** to begin.")
