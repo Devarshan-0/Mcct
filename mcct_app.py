@@ -310,7 +310,7 @@ if run_sim:
     # --- Adjust y-axis scale to zoom into the differences ---
     min_val = total_influence.min()
     max_val = total_influence.max()
-    margin = (max_val - min_val) * 0.25 # 20% margin
+    margin = (max_val - min_val) * 0.2 # 20% margin
     ax10.set_ylim([min_val - margin, max_val + margin])
 
     # --- Annotate bars with exact values ---
