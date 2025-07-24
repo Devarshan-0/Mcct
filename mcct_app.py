@@ -134,7 +134,7 @@ def plot_temporal_influence_matrix(day_index):
     plt.ylabel("Source Plant")
     st.pyplot(plt)
 
-def plot_plant_influence_timeseries(plant_index):
+def plot_plant_influence_timeseries(plant_index, anomaly_days=None):
     influence_given = []
     influence_received = []
 
@@ -146,6 +146,12 @@ def plot_plant_influence_timeseries(plant_index):
     plt.figure(figsize=(8, 5))
     plt.plot(days, influence_given, label='Influence Given', marker='o')
     plt.plot(days, influence_received, label='Influence Received', marker='s')
+
+    # Draw anomaly markers
+    if anomaly_days:
+        for d in anomaly_days.get(plant_index, []):
+            plt.axvline(x=d, color='red', linestyle='--', alpha=0.5)
+
     plt.title(f"Temporal Influence for Plant {plant_index}")
     plt.xlabel("Day")
     plt.ylabel("Total Influence")
@@ -154,7 +160,23 @@ def plot_plant_influence_timeseries(plant_index):
     plt.tight_layout()
     st.pyplot(plt)
 
-    print(f"Plant index passed: {plant_index}")
+
+# ---- Step 13: Detect sudden influence shifts ----
+def detect_influence_shifts(threshold=0.2):
+    anomaly_days = {i: [] for i in range(num_plants)}
+
+    for plant_index in range(num_plants):
+        prev_given = None
+        for day, mat in enumerate(daily_influence_matrices):
+            total_given = np.sum(mat[plant_index, :])
+            if prev_given is not None:
+                change = abs(total_given - prev_given)
+                if change > threshold:
+                    anomaly_days[plant_index].append(day)
+            prev_given = total_given
+
+    return anomaly_days
+   
 
 
    
@@ -239,7 +261,12 @@ if run_sim:
     st.subheader("Influence Time Series per Plant")
     selected_plant = st.selectbox("Select Plant", plants, key="temporal_plant")
     plant_index = plants.index(selected_plant)
-    plot_plant_influence_timeseries(plant_index)
+
+    # Run shift detection and pass anomaly days
+    st.write("Detecting sudden influence shifts...")
+    anomaly_days = detect_influence_shifts(threshold=0.2)
+    plot_plant_influence_timeseries(plant_index, anomaly_days)
+
 
 
 
