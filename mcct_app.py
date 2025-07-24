@@ -134,7 +134,7 @@ def plot_temporal_influence_matrix(day_index):
     plt.ylabel("Source Plant")
     st.pyplot(plt)
 
-def plot_plant_influence_timeseries(plant_index, anomaly_days=None):
+def plot_plant_influence_timeseries(plant_index, anomaly_days=None, anomaly_types=None):
     influence_given = []
     influence_received = []
 
@@ -147,10 +147,12 @@ def plot_plant_influence_timeseries(plant_index, anomaly_days=None):
     plt.plot(days, influence_given, label='Influence Given', marker='o')
     plt.plot(days, influence_received, label='Influence Received', marker='s')
 
-    # Draw anomaly markers
-    if anomaly_days:
-        for d in anomaly_days.get(plant_index, []):
-            plt.axvline(x=d, color='red', linestyle='--', alpha=0.5)
+    # Draw color-coded anomaly markers
+    if anomaly_days and anomaly_types:
+        for idx, d in enumerate(anomaly_days.get(plant_index, [])):
+            typ = anomaly_types[plant_index][idx]
+            color = 'red' if typ == 'increase' else 'blue'
+            plt.axvline(x=d, color=color, linestyle='--', alpha=0.6)
 
     plt.title(f"Temporal Influence for Plant {plant_index}")
     plt.xlabel("Day")
@@ -161,21 +163,25 @@ def plot_plant_influence_timeseries(plant_index, anomaly_days=None):
     st.pyplot(plt)
 
 
+
 # ---- Step 13: Detect sudden influence shifts ----
 def detect_influence_shifts(threshold=0.2):
     anomaly_days = {i: [] for i in range(num_plants)}
+    anomaly_types = {i: [] for i in range(num_plants)}  # 'increase' or 'decrease'
 
     for plant_index in range(num_plants):
         prev_given = None
         for day, mat in enumerate(daily_influence_matrices):
             total_given = np.sum(mat[plant_index, :])
             if prev_given is not None:
-                change = abs(total_given - prev_given)
-                if change > threshold:
+                change = total_given - prev_given
+                if abs(change) > threshold:
                     anomaly_days[plant_index].append(day)
+                    anomaly_types[plant_index].append('increase' if change > 0 else 'decrease')
             prev_given = total_given
 
-    return anomaly_days
+    return anomaly_days, anomaly_types
+
    
 
 
@@ -262,13 +268,17 @@ if run_sim:
     selected_plant = st.selectbox("Select Plant", plants, key="temporal_plant")
     plant_index = plants.index(selected_plant)
 
-    # Run shift detection and pass anomaly days
-    st.write("Detecting sudden influence shifts...")
-    threshold = st.slider("Select Anomaly Threshold", 0.0, 1.0, 0.05, step=0.01)
-    anomaly_days = detect_influence_shifts(threshold=threshold)
-    plot_plant_influence_timeseries(plant_index, anomaly_days)
+    threshold = st.slider("Select Anomaly Threshold", 0.00, 1.00, 0.05, step=0.01)
+    anomaly_days, anomaly_types = detect_influence_shifts(threshold=threshold)
+    plot_plant_influence_timeseries(plant_index, anomaly_days, anomaly_types)
+
+    # Show detailed anomaly list
     if anomaly_days[plant_index]:
-        st.warning(f"⚠️ Sudden shift detected on day(s): {anomaly_days[plant_index]}")
+        st.markdown("### 🔍 Sudden Influence Changes Detected")
+        for i, day in enumerate(anomaly_days[plant_index]):
+            change_type = anomaly_types[plant_index][i]
+            arrow = "🔺 Increase" if change_type == "increase" else "🔻 Decrease"
+            st.write(f"Day {day}: {arrow}")
     else:
         st.info("No sudden influence shifts detected for this plant.")
 
