@@ -120,6 +120,7 @@ import seaborn as sns
 from sklearn.decomposition import PCA
 import networkx as nx
     # ---- Step 12 Plotting Helpers: Daily heatmap & plant timeseries
+# ---- Step 12 Plotting Helpers: Daily heatmap & plant timeseries
 def plot_temporal_influence_matrix(day_index):
     matrix = daily_influence_matrices[day_index]
     plt.figure(figsize=(8, 6))
@@ -152,6 +153,7 @@ def plot_plant_influence_timeseries(plant_index):
     plt.grid(True)
     plt.tight_layout()
     plt.show()
+
    
 
 
