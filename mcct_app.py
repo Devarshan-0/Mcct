@@ -229,7 +229,7 @@ if run_sim:
 
         fig6, ax6 = plt.subplots()
         ax6.plot(range(num_time_steps), forward, marker='o', color='crimson', linestyle='-', label=f"{selected_source} → {selected_target}")
-        ax6.plot(range(num_time_steps), backward, marker='s', color='green', linestyle='--', label=f"{target_idx} → {source_idx}")
+        ax6.plot(range(num_time_steps), backward, marker='s', color='green', linestyle='--', label=f"{selected_target} → {selected_source}")
 
         ax6.set_xlabel("Time Step")
         ax6.set_ylabel("Influence Score")
