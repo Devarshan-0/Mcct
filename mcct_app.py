@@ -239,6 +239,28 @@ if run_sim:
 
     else:
         st.warning("Please select two different plants to compare their influence.")
+    st.subheader("🌍 Context-wise Influence for a Plant Pair")
+
+    context_time_step = st.sidebar.slider("Select Time Step for Context Comparison", 0, num_time_steps - 1, 0, key="context_time_slider")
+    context_source = st.sidebar.selectbox("Source Plant (Context-wise)", plants, key="context_source")
+    context_target = st.sidebar.selectbox("Target Plant (Context-wise)", plants, key="context_target")
+
+    if context_source != context_target:
+        source_idx = plants.index(context_source)
+        target_idx = plants.index(context_target)
+
+        influence_by_context = [
+            tensor[source_idx, target_idx, context_time_step, i] for i in range(num_contexts)
+        ]
+
+        fig7, ax7 = plt.subplots()
+        ax7.bar(contexts, influence_by_context, color=['orange', 'green', 'skyblue'])
+        ax7.set_ylim(0, 1)
+        ax7.set_ylabel("Influence Score")
+        ax7.set_title(f"Influence of {context_source} → {context_target} at Time Step {context_time_step}")
+        st.pyplot(fig7)
+    else:
+        st.warning("Please choose two different plants to compare influence.")
 
     
 
