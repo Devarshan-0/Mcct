@@ -120,20 +120,20 @@ import seaborn as sns
 from sklearn.decomposition import PCA
 import networkx as nx
     # ---- Step 12 Plotting Helpers: Daily heatmap & plant timeseries
-    def plot_temporal_influence_matrix(day_index):
-        matrix = daily_influence_matrices[day_index]
-        plt.figure(figsize=(8, 6))
-        sns.heatmap(matrix,
-                    annot=True,
-                    fmt=".2f",
-                    cmap="YlGnBu",
-                    cbar_kws={'label': 'Influence'})
-        plt.title(f"Influence Matrix - Day {day_index}")
-        plt.xlabel("Target Plant")
-        plt.ylabel("Source Plant")
-        plt.show()
+def plot_temporal_influence_matrix(day_index):
+    matrix = daily_influence_matrices[day_index]
+    plt.figure(figsize=(8, 6))
+    sns.heatmap(matrix,
+                annot=True,
+                fmt=".2f",
+                cmap="YlGnBu",
+                cbar_kws={'label': 'Influence'})
+    plt.title(f"Influence Matrix - Day {day_index}")
+    plt.xlabel("Target Plant")
+    plt.ylabel("Source Plant")
+    plt.show()
 
-    def plot_plant_influence_timeseries(plant_index):
+ def plot_plant_influence_timeseries(plant_index):
         influence_given = []
         influence_received = []
 
@@ -152,7 +152,7 @@ import networkx as nx
         plt.grid(True)
         plt.tight_layout()
         plt.show()
-
+   
 
 
 
