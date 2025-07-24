@@ -272,6 +272,29 @@ if run_sim:
     sns.heatmap(avg_matrix, annot=True, cmap="viridis", xticklabels=plants, yticklabels=plants, ax=ax8)
     ax8.set_title(f"Average Influence Over Time — Context: {avg_ctx}")
     st.pyplot(fig8)
+    st.subheader("🌐 Feature-wise Influence Matrix")
+
+    selected_feature_influence = st.selectbox("Select Feature", features, key="feature_influence")
+    feature_index = features.index(selected_feature_influence)
+
+    matrix_feature_based = np.zeros((num_plants, num_plants))
+    for i in range(num_plants):
+        for j in range(num_plants):
+            if i == j:
+                continue
+            influence_vals = []
+            for t in range(num_time_steps):
+                vi = plant_data[plants[i]][t][selected_context][selected_feature_influence]
+                vj = plant_data[plants[j]][t][selected_context][selected_feature_influence]
+                sim = 1 - abs(vi - vj) / (max(vi, vj) + 1e-5)
+                influence_vals.append(sim)
+            matrix_feature_based[i, j] = np.mean(influence_vals)
+
+    fig9, ax9 = plt.subplots()
+    sns.heatmap(matrix_feature_based, annot=True, cmap="coolwarm", xticklabels=plants, yticklabels=plants, ax=ax9)
+    ax9.set_title(f"Feature-based Influence Matrix — {selected_feature_influence.capitalize()} ({selected_context})")
+    st.pyplot(fig9)
+
 
     
 
