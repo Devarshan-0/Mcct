@@ -479,8 +479,7 @@ if run_sim:
 
     
 
-# --- Show Environmental Data ---
-    st.markdown(f"### 🌿 Environmental Data — Context: {selected_context}")
+
 
 # --- Day selector for environmental data ---
 selected_env_day = st.selectbox("Select Day for Environmental View", list(range(num_time_steps)), key="env_day")
