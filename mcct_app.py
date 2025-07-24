@@ -303,11 +303,23 @@ if run_sim:
     total_influence = np.sum(avg_influence_matrix, axis=1)
 
     fig10, ax10 = plt.subplots()
-    ax10.bar(plants, total_influence, color='teal')
-    ax10.set_ylim(0, 10)
+    bars = ax10.bar(plants, total_influence, color='teal')
     ax10.set_ylabel("Total Outgoing Influence")
     ax10.set_title(f"Overall Influence Rankings — Context: {context_for_ranking}")
+
+    # --- Adjust y-axis scale to zoom into the differences ---
+    min_val = total_influence.min()
+    max_val = total_influence.max()
+    margin = (max_val - min_val) * 0.2  # 20% margin
+    ax10.set_ylim([min_val - margin, max_val + margin])
+
+    # --- Annotate bars with exact values ---
+    for bar, val in zip(bars, total_influence):
+        ax10.text(bar.get_x() + bar.get_width()/2, val + margin*0.05, f"{val:.2f}",
+                  ha='center', va='bottom', fontsize=9)
+
     st.pyplot(fig10)
+
 
 
     
