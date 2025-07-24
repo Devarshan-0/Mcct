@@ -268,8 +268,9 @@ if run_sim:
                 influence = prior + learning_rate * (evidence - prior)
                 day_matrix[i, j] = influence
         daily_influence_matrices.append(day_matrix)
-    st.write("Daily influence matrices generated:", len(daily_influence_matrices))
-
+    avg_influence_matrix = np.mean(np.array(daily_influence_matrices), axis=0)
+    
+    
 
 
 
