@@ -261,6 +261,17 @@ if run_sim:
         st.pyplot(fig7)
     else:
         st.warning("Please choose two different plants to compare influence.")
+    st.subheader("📊 Average Influence Matrix Over Time")
+
+    avg_ctx = st.sidebar.selectbox("Select Context for Average Influence", contexts, key="avg_ctx")
+    ctx_idx_avg = contexts.index(avg_ctx)
+
+    avg_matrix = np.mean(tensor[:, :, :, ctx_idx_avg], axis=2)
+
+    fig8, ax8 = plt.subplots()
+    sns.heatmap(avg_matrix, annot=True, cmap="viridis", xticklabels=plants, yticklabels=plants, ax=ax8)
+    ax8.set_title(f"Average Influence Over Time — Context: {avg_ctx}")
+    st.pyplot(fig8)
 
     
 
