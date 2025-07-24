@@ -326,17 +326,40 @@ if run_sim:
         selected_network_day = st.slider("Select Day for Network", 0, num_time_steps - 1, 0)
         plot_influence_network(daily_influence_matrices[selected_network_day],
                                plant_labels=plants, threshold=network_threshold)
-        st.subheader("Top Influential Plants")
+    st.subheader("📊 Influence Rankings")
 
+    ranking_mode = st.radio("Select View Mode", ["Top from Network", "Context-Wise Bar Chart"])
 
-    if network_mode == "Average Influence":
-        ranked = get_top_influencers(avg_influence_matrix, plants)
+    if ranking_mode == "Top from Network":
+        if network_mode == "Average Influence":
+            ranked = get_top_influencers(avg_influence_matrix, plants)
+        else:
+            ranked = get_top_influencers(daily_influence_matrices[selected_network_day], plants)
+
+        for rank, (plant, total) in enumerate(ranked, start=1):
+            st.write(f"{rank}. {plant} — Total Influence Given: {total:.3f}")
+
     else:
-        ranked = get_top_influencers(daily_influence_matrices[selected_network_day], plants)
+        # Bar chart version from bottom of your file (merged here)
+        st.write("Total Influence Given by Each Plant in Each Context")
+        influence_by_context = {
+            context: np.sum(tensor[:, :, :, c], axis=(1, 2))
+            for c, context in enumerate(contexts)
+        }
 
-    for rank, (plant, total) in enumerate(ranked, start=1):
-        st.write(f"{rank}. {plant} — Total Influence Given: {total:.3f}")
+        fig10, ax10 = plt.subplots(figsize=(10, 5))
+        bar_width = 0.2
+        positions = np.arange(len(plants))
 
+        for i, (context, values) in enumerate(influence_by_context.items()):
+            ax10.bar(positions + i * bar_width, values, width=bar_width, label=context)
+
+        ax10.set_xticks(positions + bar_width * (len(contexts) - 1) / 2)
+        ax10.set_xticklabels(plants)
+        ax10.set_ylabel("Total Influence")
+        ax10.set_title("Influence Given Per Context")
+        ax10.legend()
+        st.pyplot(fig10)
 
 
 
@@ -351,23 +374,7 @@ if run_sim:
         ax2.annotate(plants[i], (coords[i, 0], coords[i, 1]))
     st.pyplot(fig2)
 
-    # --- Network Graph of Influence ---
-    st.subheader("Plant Influence Graph")
-    G = nx.DiGraph()
-    for i in range(num_plants):
-        G.add_node(plants[i])
-    for i in range(num_plants):
-        for j in range(num_plants):
-            if i != j and matrix[i, j] > threshold:
-                G.add_edge(plants[i], plants[j], weight=round(matrix[i, j], 2))
-
-
-    pos = nx.circular_layout(G)
-    edge_labels = nx.get_edge_attributes(G, 'weight')
-    fig3, ax3 = plt.subplots()
-    nx.draw(G, pos, with_labels=True, node_color='lightgreen', node_size=1200, ax=ax3)
-    nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, ax=ax3)
-    st.pyplot(fig3)
+   
 # --- Feature Trend Visualization ---
     st.subheader("📉 Feature Trends Over Time")
     selected_feature = st.selectbox("Select Feature to View", features)
@@ -461,32 +468,7 @@ if run_sim:
     sns.heatmap(matrix_feature_based, annot=True, cmap="coolwarm", xticklabels=plants, yticklabels=plants, ax=ax9)
     ax9.set_title(f"Feature-based Influence Matrix — {selected_feature_influence.capitalize()} ({selected_context})")
     st.pyplot(fig9)
-    st.subheader("🏆 Plant Influence Rankings (Total Outgoing Influence)")
-
-    context_for_ranking = st.selectbox("Select Context for Ranking", contexts, key="ranking_ctx")
-    ctx_idx_rank = contexts.index(context_for_ranking)
-
-    avg_influence_matrix = np.mean(tensor[:, :, :, ctx_idx_rank], axis=2)
-    total_influence = np.sum(avg_influence_matrix, axis=1)
-
-    fig10, ax10 = plt.subplots()
-    bars = ax10.bar(plants, total_influence, color='teal')
-    ax10.set_ylabel("Total Outgoing Influence")
-    ax10.set_title(f"Overall Influence Rankings — Context: {context_for_ranking}")
-
-    # --- Adjust y-axis scale to zoom into the differences ---
-    min_val = total_influence.min()
-    max_val = total_influence.max()
-    margin = (max_val - min_val) * 0.2 # 20% margin
-    ax10.set_ylim([min_val - margin, max_val + margin])
-
-    # --- Annotate bars with exact values ---
-    for bar, val in zip(bars, total_influence):
-        ax10.text(bar.get_x() + bar.get_width()/2, val + margin*0.05, f"{val:.2f}",
-                  ha='center', va='bottom', fontsize=9)
-
-    st.pyplot(fig10)
-
+    
 
 
     
