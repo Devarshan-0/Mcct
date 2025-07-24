@@ -292,6 +292,33 @@ if run_sim:
         file_name=f"influence_matrix_{selected_context}.csv",
         mime='text/csv'
     )
+    st.subheader("View & Download Average Influence Matrix")
+
+    matrix_view_mode = st.radio("Select Matrix View", ["Context Matrix", "Overall Average Matrix"])
+
+    if matrix_view_mode == "Context Matrix":
+        ctx_idx = contexts.index(selected_context)
+        context_matrix = np.mean(tensor[:, :, :, ctx_idx], axis=2)
+        csv = matrix_to_csv(context_matrix)
+        st.download_button("Download Context Matrix CSV", csv,
+                           file_name=f"influence_matrix_{selected_context}.csv",
+                           mime='text/csv')
+        st.markdown(f"**Context: {selected_context}**")
+        fig, ax = plt.subplots()
+        sns.heatmap(context_matrix, annot=True, fmt=".2f", cmap="YlOrBr", ax=ax)
+        st.pyplot(fig)
+
+    else:
+        avg_matrix = np.mean(daily_influence_matrices, axis=0)
+        csv = matrix_to_csv(avg_matrix)
+        st.download_button("Download Average Matrix CSV", csv,
+                           file_name="average_influence_matrix.csv",
+                           mime='text/csv')
+        st.markdown("**Overall Average Influence Matrix Across All Days and Contexts**")
+        fig, ax = plt.subplots()
+        sns.heatmap(avg_matrix, annot=True, fmt=".2f", cmap="YlGnBu", ax=ax)
+        st.pyplot(fig)
+
     # ---- Step 12 UI: Temporal Dynamics ----
     st.subheader("View Daily Influence Matrix")
     selected_day = st.slider("Select Day", 0, num_time_steps - 1, 0)
@@ -434,18 +461,7 @@ if run_sim:
         st.pyplot(fig7)
     else:
         st.warning("Please choose two different plants to compare influence.")
-    st.subheader("📊 Average Influence Matrix Over Time")
-
-    avg_ctx = st.selectbox("Select Context", contexts, key="avg_ctx_inline")
-
-    ctx_idx_avg = contexts.index(avg_ctx)
-
-    avg_matrix = np.mean(tensor[:, :, :, ctx_idx_avg], axis=2)
-
-    fig8, ax8 = plt.subplots()
-    sns.heatmap(avg_matrix, annot=True, cmap="viridis", xticklabels=plants, yticklabels=plants, ax=ax8)
-    ax8.set_title(f"Average Influence Over Time — Context: {avg_ctx}")
-    st.pyplot(fig8)
+    
     st.subheader("🌐 Feature-wise Influence Matrix")
 
     selected_feature_influence = st.selectbox("Select Feature", features, key="feature_influence")
