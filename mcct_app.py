@@ -315,7 +315,7 @@ if run_sim:
 
     # --- Annotate bars with exact values ---
     for bar, val in zip(bars, total_influence):
-        ax10.text(bar.get_x() + bar.get_width()/2, val + margin*0.02, f"{val:.2f}",
+        ax10.text(bar.get_x() + bar.get_width()/2, val + margin*0.04, f"{val:.2f}",
                   ha='center', va='bottom', fontsize=9)
 
     st.pyplot(fig10)
