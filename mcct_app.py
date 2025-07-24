@@ -218,31 +218,30 @@ if run_sim:
     ax4.legend()
     st.pyplot(fig4)
     # --- Time-wise Influence Evolution Plot ---
+    # --- Plant-to-Plant Influence Over Time ---
+    st.subheader("🔁 Time-wise Influence Between Two Plants")
+    # Sidebar selection for Source Plant
+    selected_source = st.sidebar.selectbox("Source Plant", plants)
+
+    # Sidebar selection for Target Plant (exclude source)
+    target_options = [p for p in plants if p != selected_source]
+    selected_target = st.sidebar.selectbox("Target Plant", target_options)
+
+    # Only plot if source ≠ target
     if selected_source != selected_target:
         source_idx = plants.index(selected_source)
         target_idx = plants.index(selected_target)
-        values_over_time = [tensor[source_idx, target_idx, t, ctx_idx] for t in range(num_time_steps)]
-        st.subheader(f"📊 Influence of {selected_source} → {selected_target} over Time ({selected_context})")
-        fig5, ax5 = plt.subplots()
-        ax5.plot(range(num_time_steps), values_over_time, marker='o')
-        ax5.set_xlabel("Time Step")
-        ax5.set_ylabel("Influence Score")
-        ax5.set_title("Time-wise Influence Trend")
-        st.pyplot(fig5)
-    st.subheader("🔁 Time-wise Influence Between Two Plants")
-    selected_target = st.sidebar.selectbox("Target Plant", plants, index=1)
-    fig6, ax6 = plt.subplots()
-    influence_values = [tensor[plants.index(selected_source), plants.index(selected_target), t, ctx_idx]
-                        for t in range(num_time_steps)]
-    ax6.plot(range(num_time_steps), influence_values, marker='o', color='crimson')
-    ax6.set_xlabel("Time Step")
-    ax6.set_ylabel("Influence Score")
-    ax6.set_title(f"Influence of {selected_source} → {selected_target} Over Time — Context: {selected_context}")
-    st.pyplot(fig6)
+        influence_values = [tensor[source_idx, target_idx, t, ctx_idx] for t in range(num_time_steps)]
 
+        fig6, ax6 = plt.subplots()
+        ax6.plot(range(num_time_steps), influence_values, marker='o', color='crimson')
+        ax6.set_xlabel("Time Step")
+        ax6.set_ylabel("Influence Score")
+        ax6.set_title(f"Influence of {selected_source} → {selected_target} Over Time — Context: {selected_context}")
+        st.pyplot(fig6)
+    else:
+        st.warning("Please select different plants for source and target.")
 
-
-    
 # --- Show Environmental Data ---
     st.markdown(f"### 🌿 Environmental Data — Context: {selected_context}, Time Step: {selected_time}")
 
