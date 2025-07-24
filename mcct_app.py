@@ -299,7 +299,7 @@ if run_sim:
     if matrix_view_mode == "Context Matrix":
         ctx_idx = contexts.index(selected_context)
         context_matrix = np.mean(tensor[:, :, :, ctx_idx], axis=2)
-        csv = matrix_to_csv(context_matrix)
+       csv = pd.DataFrame(context_matrix).to_csv(index=False)
         st.download_button("Download Context Matrix CSV", csv,
                            file_name=f"influence_matrix_{selected_context}.csv",
                            mime='text/csv')
@@ -310,7 +310,7 @@ if run_sim:
 
     else:
         avg_matrix = np.mean(daily_influence_matrices, axis=0)
-        csv = matrix_to_csv(avg_matrix)
+        csv = pd.DataFrame(avg_matrix).to_csv(index=False)
         st.download_button("Download Average Matrix CSV", csv,
                            file_name="average_influence_matrix.csv",
                            mime='text/csv')
