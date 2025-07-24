@@ -483,7 +483,7 @@ if run_sim:
     st.markdown(f"### 🌿 Environmental Data — Context: {selected_context}")
 
     for pi, plant in enumerate(plants):
-        data = plant_data[plant][selected_time][selected_context]
+        data = plant_data[plant][selected_context]
         st.markdown(
         f"**{plant}**: Temperature = {data['temperature']}°C, "
         f"Humidity = {data['humidity']}%, Soil pH = {data['soil_pH']}"
