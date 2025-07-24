@@ -142,8 +142,6 @@ selected_time = st.sidebar.slider("Select Time Step", 0, 6, 0)
 threshold = st.sidebar.slider("Minimum Influence Threshold", 0.0, 1.0, 0.1, 0.05)
 st.sidebar.markdown("---")
 st.sidebar.markdown("### 📈 Time-wise Influence Tracker")
-selected_source = st.sidebar.selectbox("Source Plant", plants)
-selected_target = st.sidebar.selectbox("Target Plant", plants)
 run_sim = st.sidebar.checkbox("▶️ Run Simulation")
 
 
