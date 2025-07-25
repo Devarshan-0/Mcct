@@ -238,7 +238,17 @@ num_time_steps = 7
 learning_rate = 0.2
 # --- Sidebar Inputs ---
 uploaded_file = st.sidebar.file_uploader("📂 Upload CSV Plant Data", type=["csv"])
-external_df = pd.read_csv(uploaded_file) if uploaded_file is not None else None
+if uploaded_file is not None:
+    if uploaded_file.name.endswith(".csv"):
+        try:
+            external_df = pd.read_csv(uploaded_file)
+        except pd.errors.EmptyDataError:
+            st.error("🚫 The uploaded CSV is empty.")
+        except Exception as e:
+            st.error(f"❌ Could not read the CSV file: {e}")
+    else:
+        st.error("⚠️ Please upload a file with a `.csv` extension.")
+
 selected_context = st.sidebar.selectbox("Select Environmental Context", contexts)
 selected_time = st.sidebar.slider("Select Time Step", 0, 6, 0)
 run_sim = st.sidebar.checkbox("▶️ Run Simulation")
