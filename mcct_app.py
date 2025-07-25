@@ -277,6 +277,23 @@ if run_sim:
                 day_matrix[i, j] = influence
         daily_influence_matrices.append(day_matrix)
     avg_influence_matrix = np.mean(np.array(daily_influence_matrices), axis=0)
+
+    # --- Day selector for environmental data ---
+     # --- 9. Environmental with Expander ---
+    with st.expander("ℹ️ What is this Environmental Data section?"):
+        st.markdown("""
+        Shows raw environmental readings (temperature, humidity, pH)  
+        for each plant at the selected day and context. Useful for linking model outputs  
+        back to input conditions.
+        """)
+    st.markdown(f"### 🌿 Environmental Data — Context: {selected_context}, Time Step: {selected_time}")
+
+    for pi, plant in enumerate(plants):
+        data = plant_data[plant][selected_time][selected_context]
+        st.markdown(
+        f"**{plant}**: Temperature = {data['temperature']}°C, "
+        f"Humidity = {data['humidity']}%, Soil pH = {data['soil_pH']}"
+        )
         # --- 1. Bayesian Influence Matrix with Expander ---
     with st.expander("ℹ️ What is this Bayesian Influence Matrix?"):
         st.markdown("""
@@ -542,25 +559,6 @@ if run_sim:
     sns.heatmap(matrix_feature_based, annot=True, cmap="coolwarm", xticklabels=plants, yticklabels=plants, ax=ax9)
     ax9.set_title(f"Feature-based Influence Matrix — {selected_feature_influence.capitalize()} ({selected_context})")
     st.pyplot(fig9)
-
-
-    
-# --- Day selector for environmental data ---
-     # --- 9. Environmental with Expander ---
-    with st.expander("ℹ️ What is this Environmental Data section?"):
-        st.markdown("""
-        Shows raw environmental readings (temperature, humidity, pH)  
-        for each plant at the selected day and context. Useful for linking model outputs  
-        back to input conditions.
-        """)
-    st.markdown(f"### 🌿 Environmental Data — Context: {selected_context}, Time Step: {selected_time}")
-
-    for pi, plant in enumerate(plants):
-        data = plant_data[plant][selected_time][selected_context]
-        st.markdown(
-        f"**{plant}**: Temperature = {data['temperature']}°C, "
-        f"Humidity = {data['humidity']}%, Soil pH = {data['soil_pH']}"
-        )
 
 else:
     st.info("Click ▶️ **Run Simulation** to begin.")
