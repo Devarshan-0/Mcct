@@ -248,6 +248,7 @@ if run_sim:
 
     # --- Run Your Real Model ---
     import pandas as pd
+    external_df = None
     if uploaded_file is not None:
         if uploaded_file.name.endswith(".csv"):
             try:
