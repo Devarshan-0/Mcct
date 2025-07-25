@@ -475,31 +475,25 @@ if run_sim:
     ax9.set_title(f"Feature-based Influence Matrix — {selected_feature_influence.capitalize()} ({selected_context})")
     st.pyplot(fig9)
     
-
-
-    
-
-
-
 # --- Day selector for environmental data ---
-selected_env_day = st.selectbox("Select Day for Environmental View", list(range(num_time_steps)), key="env_day")
+    selected_env_day = st.selectbox("Select Day for Environmental View", list(range(num_time_steps)), key="env_day")
 
-# --- Display environmental data for all plants on selected day ---
-st.markdown(f"### 🌿 Environmental Data — Context: {selected_context}, Day: {selected_env_day}")
+    st.markdown(f"### 🌿 Environmental Data — Context: {selected_context}, Day: {selected_env_day}")
 
-for pi, plant in enumerate(plants):
-    try:
-        day_data = plant_data[pi][selected_env_day]
-        temp = day_data.get("temperature", "N/A")
-        hum = day_data.get("humidity", "N/A")
-        ph = day_data.get("soil_pH", "N/A")
+    for pi, plant in enumerate(plants):
+        try:
+            day_data = plant_data[pi][selected_env_day]
+            temp = day_data.get("temperature", "N/A")
+            hum = day_data.get("humidity", "N/A")
+            ph = day_data.get("soil_pH", "N/A")
 
-        st.markdown(
-            f"**{plant}**: Temperature = {temp}°C, "
-            f"Humidity = {hum}%, Soil pH = {ph}"
-        )
-    except IndexError:
-        st.warning(f"No data found for {plant} on Day {selected_env_day}.")
+            st.markdown(
+                f"**{plant}**: Temperature = {temp}°C, "
+                f"Humidity = {hum}%, Soil pH = {ph}"
+            )
+        except (IndexError, KeyError):
+            st.warning(f"No data found for {plant} on Day {selected_env_day}.")
+
 
 else:
     st.info("Click ▶️ **Run Simulation** to begin.")
