@@ -476,23 +476,20 @@ if run_sim:
     st.pyplot(fig9)
     
 # --- Day selector for environmental data ---
+
     selected_env_day = st.selectbox("Select Day for Environmental View", list(range(num_time_steps)), key="env_day")
 
     st.markdown(f"### 🌿 Environmental Data — Context: {selected_context}, Day: {selected_env_day}")
 
     for pi, plant in enumerate(plants):
         try:
-            day_data = plant_data[pi][selected_env_day]
-            temp = day_data.get("temperature", "N/A")
-            hum = day_data.get("humidity", "N/A")
-            ph = day_data.get("soil_pH", "N/A")
-
+            data = plant_data[pi][selected_env_day][selected_context]
             st.markdown(
-                f"**{plant}**: Temperature = {temp}°C, "
-                f"Humidity = {hum}%, Soil pH = {ph}"
+                f"**{plant}**: Temperature = {data['temperature']}°C, "
+                f"Humidity = {data['humidity']}%, Soil pH = {data['soil_pH']}"
             )
         except (IndexError, KeyError):
-            st.warning(f"No data found for {plant} on Day {selected_env_day}.")
+            st.warning(f"No data found for {plant} on Day {selected_env_day} in context {selected_context}.")
 
 
 else:
