@@ -277,7 +277,7 @@ if run_sim:
     with tab1:
         st.subheader("📊 Average Influence Matrix (Bayesian Inference)")
         st.write(f"Context: {selected_context}")
-        matrix = np.mean(influence_prob[:, :, ctx_idx], axis=2)
+        matrix = np.mean(influence_prob[:, :, :,ctx_idx], axis=2)
         fig1, ax1 = plt.subplots()
         sns.heatmap(matrix, annot=True, cmap="YlGnBu", xticklabels=plants, yticklabels=plants, ax=ax1)
         st.pyplot(fig1)
