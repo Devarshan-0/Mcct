@@ -261,6 +261,8 @@ if run_sim:
             st.error("⚠️ Please upload a file with a `.csv` extension.")
 
     tensor, influence_prob,plant_data = run_mcct_model(plants, features, contexts, num_time_steps, learning_rate, external_df)
+    # --- Get Context Index ---
+    ctx_idx = contexts.index(selected_context)
     st.markdown("## 📊 MCCT Simulation Results")
 
     # Create tabs for each analysis view
@@ -361,13 +363,7 @@ if run_sim:
                 day_matrix[i, j] = influence
         daily_influence_matrices.append(day_matrix)
     avg_influence_matrix = np.mean(np.array(daily_influence_matrices), axis=0)
-    
-    
 
-
-
-    # --- Get Context Index ---
-    ctx_idx = contexts.index(selected_context)
     
 # --- Day selector for environmental data ---
 
