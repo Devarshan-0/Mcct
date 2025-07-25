@@ -277,6 +277,16 @@ if run_sim:
                 day_matrix[i, j] = influence
         daily_influence_matrices.append(day_matrix)
     avg_influence_matrix = np.mean(np.array(daily_influence_matrices), axis=0)
+        # --- 1. Bayesian Influence Matrix with Expander ---
+    with st.expander("ℹ️ What is this Bayesian Influence Matrix?"):
+        st.markdown("""
+        This heatmap shows the _posterior_ belief of how much one plant influences another,
+        **after** updating prior beliefs with observed evidence over all days in the selected context.
+
+        - **Rows**: Source plant  
+        - **Columns**: Target plant  
+        - **Values**: Influence probability (0–1)
+        """)
         # --- Show Influence Matrix (from Bayesian) ---
     st.subheader(f"Bayesian Influence Matrix — Context: {selected_context}")
     matrix = influence_prob[:, :, ctx_idx]
@@ -292,11 +302,27 @@ if run_sim:
         mime='text/csv'
     )
 
+    # --- 2. Daily Influence Matrix with Expander ---
+    with st.expander("ℹ️ What is the Daily Influence Matrix?"):
+        st.markdown("""
+        Each day has a separate influence matrix reflecting the _instantaneous_ influence values
+        (prior + learning‐rate × (evidence − prior)) for that day only.
 
+        Use the slider to jump to any day and see how the network evolves.
+        """)
     # ---- Step 12 UI: Temporal Dynamics ----
     st.subheader("View Daily Influence Matrix")
     selected_day = st.slider("Select Day", 0, num_time_steps - 1, 0)
     plot_temporal_influence_matrix(selected_day)
+
+    # --- 3. Average vs Overall Matrix with Expander ---
+    with st.expander("ℹ️ What are Context vs. Overall Averages?"):
+        st.markdown("""
+        - **Context Matrix**: Average tensor values _over time_ within the selected context only.  
+        - **Overall Average Matrix**: Average matrix values _over all days and all contexts_.
+
+        The radio buttons let you switch between these two views.
+        """)
 
     st.subheader("View & Download Average Influence Matrix")
 
@@ -325,6 +351,15 @@ if run_sim:
         sns.heatmap(avg_matrix, annot=True, fmt=".2f", cmap="YlGnBu", ax=ax)
         st.pyplot(fig)
 
+      # --- 4. Time Series with Expander ---
+    with st.expander("ℹ️ What is this Time Series Plot?"):
+        st.markdown("""
+        This line chart shows, for the chosen plant:
+        - **Influence Given**: sum of its outgoing edges each day  
+        - **Influence Received**: sum of incoming edges each day  
+
+        Red/blue dashed lines mark days with sudden increases/decreases.
+        """)
     st.subheader("Influence Time Series per Plant")
     selected_plant = st.selectbox("Select Plant", plants, key="temporal_plant")
     plant_index = plants.index(selected_plant)
@@ -343,6 +378,15 @@ if run_sim:
     else:
         st.info("No sudden influence shifts detected for this plant.")
 
+     # --- 5. Network with Expander ---
+    with st.expander("ℹ️ What does the Causal Influence Network show?"):
+        st.markdown("""
+        A directed graph where:
+        - **Nodes** = plants  
+        - **Edges** = influence above the chosen threshold  
+
+        You can view the network for a single day or the average.
+        """)
     st.subheader("Causal Influence Network")
 
     network_mode = st.radio("View network for:", ["Average Influence", "Specific Day"])
@@ -354,6 +398,14 @@ if run_sim:
         selected_network_day = st.slider("Select Day for Network", 0, num_time_steps - 1, 0)
         plot_influence_network(daily_influence_matrices[selected_network_day],
                                plant_labels=plants, threshold=network_threshold)
+    
+     # --- 6. Rankings with Expander ---
+    with st.expander("ℹ️ What are Influence Rankings?"):
+        st.markdown("""
+        Ranks plants by their total outgoing influence:
+        - **Top from Network**: highest influencers in the current network view  
+        - **Context‑Wise Bar Chart**: compares total influence across all contexts
+        """)
     st.subheader("📊 Influence Rankings")
 
     ranking_mode = st.radio("Select View Mode", ["Top from Network", "Context-Wise Bar Chart"])
@@ -390,7 +442,12 @@ if run_sim:
         st.pyplot(fig10)
 
 
-
+    # --- 7. PCA with Expander ---
+    with st.expander("ℹ️ Why PCA?"):
+        st.markdown("""
+        PCA reduces high-dimensional influence data to 2D so you can see clusters  
+        of plants with similar influence patterns.
+        """)
     # --- PCA Visualization ---
     st.subheader("PCA Projection of Influence Matrix")
     flat = matrix.reshape(num_plants, -1)
@@ -453,9 +510,15 @@ if run_sim:
         ax9.set_title(f"Influence from {source_ctx} to {target_ctx} by Context")
         st.pyplot(fig9)
 
-    
+     # --- 8. Feature-wise with Expander ---
+    with st.expander("ℹ️ What is the Feature‑wise Influence Matrix?"):
+        st.markdown("""
+        Calculates influence based on similarity in a single feature  
+        (temperature, humidity, or soil pH).  
+        High similarity → high influence.
+        """)
    
-
+    
     
     st.subheader("🌐 Feature-wise Influence Matrix")
 
@@ -483,7 +546,13 @@ if run_sim:
 
     
 # --- Day selector for environmental data ---
-
+     # --- 9. Environmental with Expander ---
+    with st.expander("ℹ️ What is this Environmental Data section?"):
+        st.markdown("""
+        Shows raw environmental readings (temperature, humidity, pH)  
+        for each plant at the selected day and context. Useful for linking model outputs  
+        back to input conditions.
+        """)
     st.markdown(f"### 🌿 Environmental Data — Context: {selected_context}, Time Step: {selected_time}")
 
     for pi, plant in enumerate(plants):
