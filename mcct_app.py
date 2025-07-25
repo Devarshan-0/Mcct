@@ -261,7 +261,7 @@ if run_sim:
             st.error("⚠️ Please upload a file with a `.csv` extension.")
 
     tensor, influence_prob,plant_data = run_mcct_model(plants, features, contexts, num_time_steps, learning_rate, external_df)
-        st.markdown("## 📊 MCCT Simulation Results")
+    st.markdown("## 📊 MCCT Simulation Results")
 
     # Create tabs for each analysis view
     tab1, tab2, tab3, tab4, tab5 = st.tabs([
