@@ -262,6 +262,21 @@ if run_sim:
     tensor, influence_prob,plant_data = run_mcct_model(plants, features, contexts, num_time_steps, learning_rate, external_df)
     # --- Get Context Index ---
     ctx_idx = contexts.index(selected_context)
+            # ---- Step 12: Build daily influence matrices from tensor + Bayesian update
+    daily_influence_matrices = []
+    for d in range(num_time_steps):
+        day_matrix = np.zeros((num_plants, num_plants))
+        for i in range(num_plants):
+            for j in range(num_plants):
+                if i == j:
+                    continue
+                # replicate your Bayesian update per day
+                prior = influence_prob[i, j, contexts.index(selected_context)]
+                evidence = tensor[i, j, d, contexts.index(selected_context)]
+                influence = prior + learning_rate * (evidence - prior)
+                day_matrix[i, j] = influence
+        daily_influence_matrices.append(day_matrix)
+    avg_influence_matrix = np.mean(np.array(daily_influence_matrices), axis=0)
         # --- Show Influence Matrix (from Bayesian) ---
     st.subheader(f"Bayesian Influence Matrix — Context: {selected_context}")
     matrix = influence_prob[:, :, ctx_idx]
@@ -462,21 +477,7 @@ if run_sim:
     sns.heatmap(matrix_feature_based, annot=True, cmap="coolwarm", xticklabels=plants, yticklabels=plants, ax=ax9)
     ax9.set_title(f"Feature-based Influence Matrix — {selected_feature_influence.capitalize()} ({selected_context})")
     st.pyplot(fig9)
-        # ---- Step 12: Build daily influence matrices from tensor + Bayesian update
-    daily_influence_matrices = []
-    for d in range(num_time_steps):
-        day_matrix = np.zeros((num_plants, num_plants))
-        for i in range(num_plants):
-            for j in range(num_plants):
-                if i == j:
-                    continue
-                # replicate your Bayesian update per day
-                prior = influence_prob[i, j, contexts.index(selected_context)]
-                evidence = tensor[i, j, d, contexts.index(selected_context)]
-                influence = prior + learning_rate * (evidence - prior)
-                day_matrix[i, j] = influence
-        daily_influence_matrices.append(day_matrix)
-    avg_influence_matrix = np.mean(np.array(daily_influence_matrices), axis=0)
+
 
     
 # --- Day selector for environmental data ---
