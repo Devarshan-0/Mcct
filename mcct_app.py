@@ -240,6 +240,7 @@ learning_rate = 0.2
 uploaded_file = st.sidebar.file_uploader("📂 Upload CSV Plant Data", type=["csv"])
 external_df = pd.read_csv(uploaded_file) if uploaded_file is not None else None
 selected_context = st.sidebar.selectbox("Select Environmental Context", contexts)
+selected_time = st.sidebar.slider("Select Time Step", 0, 6, 0)
 run_sim = st.sidebar.checkbox("▶️ Run Simulation")
 
 
@@ -477,20 +478,14 @@ if run_sim:
     
 # --- Day selector for environmental data ---
 
-    selected_env_day = st.selectbox("Select Day for Environmental View", list(range(num_time_steps)), key="env_day")
-
-    st.markdown(f"### 🌿 Environmental Data — Context: {selected_context}, Day: {selected_env_day}")
+    st.markdown(f"### 🌿 Environmental Data — Context: {selected_context}, Time Step: {selected_time}")
 
     for pi, plant in enumerate(plants):
-        try:
-            data = plant_data[pi][selected_env_day][selected_context]
-            st.markdown(
-                f"**{plant}**: Temperature = {data['temperature']}°C, "
-                f"Humidity = {data['humidity']}%, Soil pH = {data['soil_pH']}"
-            )
-        except (IndexError, KeyError):
-            st.warning(f"No data found for {plant} on Day {selected_env_day} in context {selected_context}.")
-
+        data = plant_data[plant][selected_time][selected_context]
+        st.markdown(
+        f"**{plant}**: Temperature = {data['temperature']}°C, "
+        f"Humidity = {data['humidity']}%, Soil pH = {data['soil_pH']}"
+        )
 
 else:
     st.info("Click ▶️ **Run Simulation** to begin.")
