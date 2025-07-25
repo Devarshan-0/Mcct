@@ -291,6 +291,13 @@ if run_sim:
         file_name=f"influence_matrix_{selected_context}.csv",
         mime='text/csv'
     )
+
+
+    # ---- Step 12 UI: Temporal Dynamics ----
+    st.subheader("View Daily Influence Matrix")
+    selected_day = st.slider("Select Day", 0, num_time_steps - 1, 0)
+    plot_temporal_influence_matrix(selected_day)
+
     st.subheader("View & Download Average Influence Matrix")
 
     matrix_view_mode = st.radio("Select Matrix View", ["Context Matrix", "Overall Average Matrix"])
@@ -317,11 +324,6 @@ if run_sim:
         fig, ax = plt.subplots()
         sns.heatmap(avg_matrix, annot=True, fmt=".2f", cmap="YlGnBu", ax=ax)
         st.pyplot(fig)
-
-    # ---- Step 12 UI: Temporal Dynamics ----
-    st.subheader("View Daily Influence Matrix")
-    selected_day = st.slider("Select Day", 0, num_time_steps - 1, 0)
-    plot_temporal_influence_matrix(selected_day)
 
     st.subheader("Influence Time Series per Plant")
     selected_plant = st.selectbox("Select Plant", plants, key="temporal_plant")
