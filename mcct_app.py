@@ -261,6 +261,91 @@ if run_sim:
             st.error("⚠️ Please upload a file with a `.csv` extension.")
 
     tensor, influence_prob,plant_data = run_mcct_model(plants, features, contexts, num_time_steps, learning_rate, external_df)
+        st.markdown("## 📊 MCCT Simulation Results")
+
+    # Create tabs for each analysis view
+    tab1, tab2, tab3, tab4, tab5 = st.tabs([
+        "📊 Avg Influence Matrix",
+        "📈 Daily Matrix View",
+        "📉 Timeseries Trends",
+        "🏆 Influence Rankings",
+        "🌱 Environmental Data"
+    ])
+
+    with tab1:
+        st.subheader("📊 Average Influence Matrix (Bayesian Inference)")
+        st.write(f"Context: {selected_context}")
+        matrix = np.mean(influence_prob[:, :, ctx_idx], axis=1)
+        fig1, ax1 = plt.subplots()
+        sns.heatmap(matrix, annot=True, cmap="YlGnBu", xticklabels=plants, yticklabels=plants, ax=ax1)
+        st.pyplot(fig1)
+
+    with tab2:
+        st.subheader("📈 Influence Matrix for Selected Day")
+        selected_day = st.selectbox("Select Day", list(range(num_time_steps)), key="matrix_day")
+        matrix = influence_prob[:, :, ctx_idx]
+        fig2, ax2 = plt.subplots()
+        sns.heatmap(matrix[:, selected_day], annot=True, cmap="YlOrRd", xticklabels=plants, yticklabels=plants, ax=ax2)
+        st.pyplot(fig2)
+
+    with tab3:
+        st.subheader("📉 Temporal Influence Trends")
+        selected_plant = st.selectbox("Select Plant", plants, key="plant_timeseries")
+        plant_index = plants.index(selected_plant)
+        influence_given = []
+        influence_received = []
+
+        for mat in daily_influence_matrices:
+            influence_given.append(np.sum(mat[plant_index, :]))
+            influence_received.append(np.sum(mat[:, plant_index]))
+
+        days = list(range(num_time_steps))
+        fig3, ax3 = plt.subplots()
+        ax3.plot(days, influence_given, label='Influence Given', marker='o')
+        ax3.plot(days, influence_received, label='Influence Received', marker='s')
+        ax3.set_title(f"Temporal Influence for {selected_plant}")
+        ax3.set_xlabel("Day")
+        ax3.set_ylabel("Total Influence")
+        ax3.legend()
+        ax3.grid(True)
+        st.pyplot(fig3)
+
+    with tab4:
+        st.subheader("🏆 Influence Rankings")
+        context_for_ranking = st.selectbox("Select Context for Ranking", contexts, key="ranking_ctx")
+        ctx_idx_rank = contexts.index(context_for_ranking)
+        avg_influence_matrix = np.mean(tensor[:, :, :, ctx_idx_rank], axis=2)
+        total_influence = np.sum(avg_influence_matrix, axis=1)
+
+        fig4, ax4 = plt.subplots()
+        bars = ax4.bar(plants, total_influence, color='teal')
+        ax4.set_ylabel("Total Outgoing Influence")
+        ax4.set_title(f"Overall Influence Rankings — Context: {context_for_ranking}")
+
+        min_val = total_influence.min()
+        max_val = total_influence.max()
+        margin = (max_val - min_val) * 0.2
+        ax4.set_ylim([min_val - margin, max_val + margin])
+
+        for bar, val in zip(bars, total_influence):
+            ax4.text(bar.get_x() + bar.get_width()/2, val + margin*0.05, f"{val:.2f}",
+                     ha='center', va='bottom', fontsize=9)
+        st.pyplot(fig4)
+
+    with tab5:
+        st.subheader("🌱 Environmental Data for Each Plant")
+        selected_env_day = st.selectbox("Select Day for Environmental View", list(range(num_time_steps)), key="env_day")
+
+        for pi, plant in enumerate(plants):
+            try:
+                data = plant_data[pi][selected_env_day][selected_context]
+                st.markdown(
+                    f"**{plant}**: Temperature = {data['temperature']}°C, "
+                    f"Humidity = {data['humidity']}%, Soil pH = {data['soil_pH']}"
+                )
+            except (IndexError, KeyError):
+                st.warning(f"No data found for {plant} on Day {selected_env_day} in context {selected_context}.")
+
         # ---- Step 12: Build daily influence matrices from tensor + Bayesian update
     daily_influence_matrices = []
     for d in range(num_time_steps):
@@ -283,208 +368,6 @@ if run_sim:
 
     # --- Get Context Index ---
     ctx_idx = contexts.index(selected_context)
-
-    # --- Show Influence Matrix (from Bayesian) ---
-    st.subheader(f"Bayesian Influence Matrix — Context: {selected_context}")
-    matrix = influence_prob[:, :, ctx_idx]
-    fig1, ax1 = plt.subplots()
-    sns.heatmap(matrix, annot=True, cmap="YlGnBu", xticklabels=plants, yticklabels=plants, ax=ax1)
-    st.pyplot(fig1)
-
-    # Convert influence matrix to CSV for download
-    df_influence = pd.DataFrame(matrix, columns=plants, index=plants)
-    st.download_button(
-        label="📥 Download Influence Matrix as CSV",
-        data=df_influence.to_csv().encode('utf-8'),
-        file_name=f"influence_matrix_{selected_context}.csv",
-        mime='text/csv'
-    )
-    st.subheader("View & Download Average Influence Matrix")
-
-    matrix_view_mode = st.radio("Select Matrix View", ["Context Matrix", "Overall Average Matrix"])
-
-    if matrix_view_mode == "Context Matrix":
-        ctx_idx = contexts.index(selected_context)
-        context_matrix = np.mean(tensor[:, :, :, ctx_idx], axis=2)
-        csv = pd.DataFrame(context_matrix).to_csv(index=False)
-        st.download_button("Download Context Matrix CSV", csv,
-                           file_name=f"influence_matrix_{selected_context}.csv",
-                           mime='text/csv')
-        st.markdown(f"**Context: {selected_context}**")
-        fig, ax = plt.subplots()
-        sns.heatmap(context_matrix, annot=True, fmt=".2f", cmap="YlOrBr", ax=ax)
-        st.pyplot(fig)
-
-    else:
-        avg_matrix = np.mean(daily_influence_matrices, axis=0)
-        csv = pd.DataFrame(avg_matrix).to_csv(index=False)
-        st.download_button("Download Average Matrix CSV", csv,
-                           file_name="average_influence_matrix.csv",
-                           mime='text/csv')
-        st.markdown("**Overall Average Influence Matrix Across All Days and Contexts**")
-        fig, ax = plt.subplots()
-        sns.heatmap(avg_matrix, annot=True, fmt=".2f", cmap="YlGnBu", ax=ax)
-        st.pyplot(fig)
-
-    # ---- Step 12 UI: Temporal Dynamics ----
-    st.subheader("View Daily Influence Matrix")
-    selected_day = st.slider("Select Day", 0, num_time_steps - 1, 0)
-    plot_temporal_influence_matrix(selected_day)
-
-    st.subheader("Influence Time Series per Plant")
-    selected_plant = st.selectbox("Select Plant", plants, key="temporal_plant")
-    plant_index = plants.index(selected_plant)
-
-    threshold = st.slider("Select Anomaly Threshold", 0.00, 1.00, 0.05, step=0.01)
-    anomaly_days, anomaly_types = detect_influence_shifts(threshold=threshold)
-    plot_plant_influence_timeseries(plant_index, anomaly_days, anomaly_types)
-
-    # Show detailed anomaly list
-    if anomaly_days[plant_index]:
-        st.markdown("### 🔍 Sudden Influence Changes Detected")
-        for i, day in enumerate(anomaly_days[plant_index]):
-            change_type = anomaly_types[plant_index][i]
-            arrow = "🔺 Increase" if change_type == "increase" else "🔻 Decrease"
-            st.write(f"Day {day}: {arrow}")
-    else:
-        st.info("No sudden influence shifts detected for this plant.")
-
-    st.subheader("Causal Influence Network")
-
-    network_mode = st.radio("View network for:", ["Average Influence", "Specific Day"])
-    network_threshold = st.slider("Edge Threshold", 0.0, 1.0, 0.1, step=0.01)
-
-    if network_mode == "Average Influence":
-        plot_influence_network(avg_influence_matrix, plant_labels=plants, threshold=network_threshold)
-    else:
-        selected_network_day = st.slider("Select Day for Network", 0, num_time_steps - 1, 0)
-        plot_influence_network(daily_influence_matrices[selected_network_day],
-                               plant_labels=plants, threshold=network_threshold)
-    st.subheader("📊 Influence Rankings")
-
-    ranking_mode = st.radio("Select View Mode", ["Top from Network", "Context-Wise Bar Chart"])
-
-    if ranking_mode == "Top from Network":
-        if network_mode == "Average Influence":
-            ranked = get_top_influencers(avg_influence_matrix, plants)
-        else:
-            ranked = get_top_influencers(daily_influence_matrices[selected_network_day], plants)
-
-        for rank, (plant, total) in enumerate(ranked, start=1):
-            st.write(f"{rank}. {plant} — Total Influence Given: {total:.3f}")
-
-    else:
-        # Bar chart version from bottom of your file (merged here)
-        st.write("Total Influence Given by Each Plant in Each Context")
-        influence_by_context = {
-            context: np.sum(tensor[:, :, :, c], axis=(1, 2))
-            for c, context in enumerate(contexts)
-        }
-
-        fig10, ax10 = plt.subplots(figsize=(10, 5))
-        bar_width = 0.2
-        positions = np.arange(len(plants))
-
-        for i, (context, values) in enumerate(influence_by_context.items()):
-            ax10.bar(positions + i * bar_width, values, width=bar_width, label=context)
-
-        ax10.set_xticks(positions + bar_width * (len(contexts) - 1) / 2)
-        ax10.set_xticklabels(plants)
-        ax10.set_ylabel("Total Influence")
-        ax10.set_title("Influence Given Per Context")
-        ax10.legend()
-        st.pyplot(fig10)
-
-
-
-    # --- PCA Visualization ---
-    st.subheader("PCA Projection of Influence Matrix")
-    flat = matrix.reshape(num_plants, -1)
-    pca = PCA(n_components=2)
-    coords = pca.fit_transform(flat)
-    fig2, ax2 = plt.subplots()
-    ax2.scatter(coords[:, 0], coords[:, 1])
-    for i in range(num_plants):
-        ax2.annotate(plants[i], (coords[i, 0], coords[i, 1]))
-    st.pyplot(fig2)
-    
-    with st.expander("🔍 Pairwise Influence Exploration", expanded=False):
-
-        st.subheader("Feature Trend Visualization")
-        feature_to_plot = st.selectbox("Select Feature", ["temperature", "humidity", "pH"])
-        for pid in range(num_plants):
-            if pid >= len(plant_data):
-                continue
-            try:
-                feature_vals = [plant_data[pid][day][feature_to_plot] for day in range(num_time_steps)]
-            except (IndexError, KeyError):
-                feature_vals = [0] * num_time_steps  # or np.nan
-
-            plt.plot(range(num_time_steps), feature_vals, label=f"P{pid+1}")
-        plt.xlabel("Day")
-        plt.ylabel(feature_to_plot.capitalize())
-        plt.title(f"{feature_to_plot.capitalize()} Trend Over Time")
-        plt.legend()
-        st.pyplot(plt.gcf())
-        plt.clf()
-
-        st.subheader("Influence Over Time Between Two Plants")
-        source = st.selectbox("Select Source Plant", plants, key="src_timewise")
-        target = st.selectbox("Select Target Plant", plants, key="tgt_timewise")
-        src_idx = plants.index(source)
-        tgt_idx = plants.index(target)
-
-        influence_vals = [daily_influence_matrices[d][src_idx, tgt_idx] for d in range(num_time_steps)]
-        plt.plot(range(num_time_steps), influence_vals, marker='o')
-        plt.title(f"Influence from {source} to {target} Over Time")
-        plt.xlabel("Day")
-        plt.ylabel("Influence")
-        st.pyplot(plt.gcf())
-        plt.clf()
-
-        st.subheader("Context-wise Influence Between Two Plants")
-        source_ctx = st.selectbox("Select Source Plant", plants, key="src_ctxwise")
-        target_ctx = st.selectbox("Select Target Plant", plants, key="tgt_ctxwise")
-        src_i = plants.index(source_ctx)
-        tgt_i = plants.index(target_ctx)
-
-        influence_by_context = []
-        for c in range(len(contexts)):
-            context_avg = np.mean(tensor[src_i, tgt_i, :, c])
-            influence_by_context.append(context_avg)
-
-        fig9, ax9 = plt.subplots()
-        ax9.bar(contexts, influence_by_context, color='orchid')
-        ax9.set_ylabel("Influence Value")
-        ax9.set_title(f"Influence from {source_ctx} to {target_ctx} by Context")
-        st.pyplot(fig9)
-
-    
-   
-
-    
-    st.subheader("🌐 Feature-wise Influence Matrix")
-
-    selected_feature_influence = st.selectbox("Select Feature", features, key="feature_influence")
-    feature_index = features.index(selected_feature_influence)
-
-    matrix_feature_based = np.zeros((num_plants, num_plants))
-    for i in range(num_plants):
-        for j in range(num_plants):
-            if i == j:
-                continue
-            influence_vals = []
-            for t in range(num_time_steps):
-                vi = plant_data[plants[i]][t][selected_context][selected_feature_influence]
-                vj = plant_data[plants[j]][t][selected_context][selected_feature_influence]
-                sim = 1 - abs(vi - vj) / (max(vi, vj) + 1e-5)
-                influence_vals.append(sim)
-            matrix_feature_based[i, j] = np.mean(influence_vals)
-
-    fig9, ax9 = plt.subplots()
-    sns.heatmap(matrix_feature_based, annot=True, cmap="coolwarm", xticklabels=plants, yticklabels=plants, ax=ax9)
-    ax9.set_title(f"Feature-based Influence Matrix — {selected_feature_influence.capitalize()} ({selected_context})")
-    st.pyplot(fig9)
     
 # --- Day selector for environmental data ---
 
