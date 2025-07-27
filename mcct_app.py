@@ -365,7 +365,7 @@ if run_sim:
                            mime='text/csv')
         st.markdown("**Overall Average Influence Matrix Across All Days and Contexts**")
         fig, ax = plt.subplots()
-        sns.heatmap(avg_matrix, annot=True, fmt=".2f", cmap="YlGnBu", ax=ax)
+        sns.heatmap(avg_matrix, annot=True, fmt=".2f", cmap="YlGnBu",xticklabels=plants, yticklabels=plants, ax=ax)
         st.pyplot(fig)
 
       # --- 4. Time Series with Expander ---
