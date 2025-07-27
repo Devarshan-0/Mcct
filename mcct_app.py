@@ -354,7 +354,7 @@ if run_sim:
                            mime='text/csv')
         st.markdown(f"**Context: {selected_context}**")
         fig, ax = plt.subplots()
-        sns.heatmap(context_matrix, annot=True, fmt=".2f", cmap="YlOrBr", ax=ax)
+        sns.heatmap(context_matrix, annot=True, fmt=".2f", cmap="YlOrBr", xticklabels=plants, yticklabels=plants,ax=ax)
         st.pyplot(fig)
 
     else:
