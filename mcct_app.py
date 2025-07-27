@@ -120,14 +120,17 @@ import seaborn as sns
 from sklearn.decomposition import PCA
 import networkx as nx
 # ---- Step 12 Plotting Helpers: Daily heatmap & plant timeseries
+num_plants = 5
+plants = [f"P{i+1}" for i in range(num_plants)]
 def plot_temporal_influence_matrix(day_index):
     matrix = daily_influence_matrices[day_index]
     plt.figure(figsize=(8, 6))
+    
     sns.heatmap(matrix,
                 annot=True,
                 fmt=".2f",
                 cmap="YlGnBu",
-                cbar_kws={'label': 'Influence'})
+                cbar_kws={'label': 'Influence'},xticklabels=plants, yticklabels=plants)
     plt.title(f"Influence Matrix - Day {day_index}")
     plt.xlabel("Target Plant")
     plt.ylabel("Source Plant")
@@ -228,8 +231,7 @@ st.markdown("Simulate plant-to-plant signaling under environmental contexts usin
 
 # --- Fixed Parameters ---
 # --- Define Plants and Features ---
-num_plants = 5
-plants = [f"P{i+1}" for i in range(num_plants)]
+
 features = ['temperature', 'humidity', 'soil_pH']
 contexts = ['drought', 'normal','stress']
 num_contexts = len(contexts)
